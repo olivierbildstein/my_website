@@ -1,14 +1,25 @@
 ---
+title: "Master's thesis"
+output: html_document
+---
+---
 categories:
 - ""
 - ""
 date: "2017-10-31T21:28:43-05:00"
 description: ""
 draft: false
-image: pic10.jpg
+image: pic04.jpg
 keywords: ""
-slug: ipsum
-title: Ipsum
+slug: homework2/homework2
+title: Homework 2
 ---
 
-Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.
+
+At KEDGE Business School, I decided to do my master's thesis on **The valuation of unlisted assets, could there be a bubble?**. 
+
+    [[params.tiles.showcase]]
+      title = "Biography"
+      subtitle = "Education, work, hobbies and much more"
+      image = "pic01.jpg"
+      url = "blogs/biography"
