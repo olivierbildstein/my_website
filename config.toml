@@ -69,7 +69,7 @@ disqusShortname = "olivierbildstein"
     # Button Style 1
     [[params.navigation.button1]]
       name = "Home"
-      url = "blogs"
+      url = ""
 
 
   # Banner section
@@ -135,9 +135,9 @@ disqusShortname = "olivierbildstein"
     enable = true
     title = "Professional aspirations"
     subtitle = """Now that you know a bit more about me, my preivous work experiences and my skills using the R language, allow me  to share with you my professional aspirations.
-    I am looking for a full-time position starting in June 2021 in the field of alternative investments (Private Equity, Venture Capital, Private Debt, Secondaries, Co-investments, GP-stake, Fund of Funds...you name it)."""
-    buttonText = "Interested? Contact me!"
-    url = "contact"
+    I am looking for a full-time position starting in June 2021 in the field of alternative investments (Private Equity, Venture Capital, Private Debt, Secondaries, Co-investments, GP-stake, Fund of Funds...you name it). Interested? Contact me below!"""
+    buttonText = "Or discover more here"
+    url = "blogs"
 
 
   # Contact section
@@ -162,6 +162,7 @@ disqusShortname = "olivierbildstein"
     # Contact Section
     # You can add multiple emails, phone numbers, or addresses
     # by copying the corresponding map with frontmatter code.
+    
     [[params.contact.email]]
     title = "Email"
     email = "obildstein.mfa2021@london.edu"

@@ -54,5 +54,3 @@ You can find more informations on my [Instagram page](https://www.instagram.com/
 
 - Languages: English (fluent), French (native), German (basic)
 - Volunteer experience: initiated a gender equality campaign with HeForShe in 2018
-
-![Image](https://media-exp1.licdn.com/dms/image/C4D03AQE00H40npmgjQ/profile-displayphoto-shrink_200_200/0?e=1606953600&v=beta&t=i7etE2DGIZtFSOrGhCQpUos7G8VyLozgUDw70xPsfV0)
