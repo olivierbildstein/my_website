@@ -48,16 +48,16 @@ disqusShortname = "olivierbildstein"
       url = "blogs/biography"
 
     [[params.navigation.links]]
-      name = "Blogs"
-      url = "blogs"
+      name = "Homework 1"
+      url = "blogs/homework1/homework1"
 
     [[params.navigation.links]]
-      name = "Generic Blog"
-      url = "blogs/ipsum"
+      name = "Homework 2"
+      url = "blogs/homework2/homework2"
 
     [[params.navigation.links]]
-      name = "Elements"
-      url = "elements.html"
+      name = "Homework 3"
+      url = "blogs/homework3/homework3"
 
     # Add custom links here by uncommenting code below. To remove links just delete
     # the [[params.navigation.links]] map associated with that link. Copy and paste
@@ -68,7 +68,7 @@ disqusShortname = "olivierbildstein"
 
     # Button Style 1
     [[params.navigation.button1]]
-      name = "Get Started"
+      name = "Home"
       url = "blogs"
 
 

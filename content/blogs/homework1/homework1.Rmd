@@ -155,7 +155,7 @@ Overall, since beer and wine originated in the Western world and spirits in the 
   
 ```{r,load_movies, warning=FALSE, message=FALSE}
 
-movies <- read_csv(here::here("data", "movies.csv"))
+movies <- read.csv(here::here("data", "movies.csv"))
 
 glimpse(movies)
 
@@ -334,7 +334,7 @@ When we look at the correlations for the two variables faceted after genres we s
 
 ```{r load_nyse_data, message=FALSE, warning=FALSE}
 
-nyse <- read_csv(here::here("data","nyse.csv"))
+nyse <- read_csv(here::here("data", "nyse.csv"))
 
 glimpse(nyse)
 
@@ -672,7 +672,7 @@ ggplot(hr_cleaned, aes(x = monthly_income, fill = factor(education))) +
   theme(legend.position = 'none') +
   facet_wrap(~education, scale = 'free')
 
-ggplot(hr_cleaned, aes(x = monthly_income, fill = factor(gender))) +
+ggplot(hr_cleaned, aes(x = monthly_income, , fill = factor(gender))) +
   geom_histogram()+
   labs(title = "Relationship between gender and monthly income",
        x = "Monthly income",

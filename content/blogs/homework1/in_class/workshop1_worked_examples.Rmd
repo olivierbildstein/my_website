@@ -1,0 +1,584 @@
+---
+title: "Import, Inspect, Clean and Explore a Dataset"
+author: "Your name goes here"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    highlight: zenburn
+    theme: flatly
+    toc: yes
+    toc_float: yes
+  word_document:
+    toc: yes
+---
+
+
+
+```{r, setup}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries,echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic) 
+library(janitor) # clean_names()
+library(lubridate) # handling dates
+library(here)
+library(skimr)
+library(vroom)
+library(ggrepel) # to avoid loverlapping legends
+library(ggthemes) # theme_economist, theme_fivethirtyeight, etc
+library(knitr) 
+library(kableExtra) # for nicer table formatting
+library(zoo) # to calculate 7-day moving averages
+
+
+# Some fancy formatting, ggplot themes with opinionated defaults and an emphasis on typography
+# https://cran.r-project.org/web/packages/hrbrthemes/vignettes/why_hrbrthemes.html
+library(hrbrthemes)
+
+# to use hrbrthemes you have to install/load some google fonts, https://fonts.google.com/
+# To import Roboto Condensed font, use
+hrbrthemes::import_roboto_condensed()
+
+# If you have used skyfonts to donwload all google fonts, use 
+extrafont::loadfonts()
+
+```
+
+
+
+## Task 1: NHANES (National Health and Nutrition Examination Survey)
+
+We will look at data from NHANES, the [National Health and Nutrition Examination Survey](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
+
+### Data Dictionary
+
+From the [data dictionary](http://faculty.washington.edu/kenrice/heartgraphs/):
+
+* `BPXSAR`: systolic blood pressure (mmHg)
+* `BPXDAR`: diastolic blood pressure (mmHg)
+* `BPXDI1`, `BPXDI2`: two diastolic blood pressure readings
+* `race_ethc`: race/ethnicity, coded as:
+    - Hispanic, 
+    - White non-Hispanic, 
+    - Black non-Hispanic and 
+    - Other
+* `gender`: sex, coded as Male/Female
+* `DR1TFOLA`: folate intake (μg/day)
+* `RIAGENDR`: sex, coded as 1/2
+* `BMXBMI`: body mass index (kg/m2)
+* `RIDAGEY`: age (years)
+
+### Load the data set 
+
+```{r}
+heart <-read_csv(here::here("data","nhaneslarge.csv")) %>% 
+    clean_names()
+```
+
+
+### Inspect the data set
+
+
+### 1. How many rows and columns are in the `heart` data? what are the variable types? Are there are any variables which are the wrong type?
+
+```{r, rows_and_columns}
+# write your code
+glimpse(heart)
+skim(heart)
+
+
+# the two diastolic pressure readings are <chr> when they should be a number.
+# Similarly for BMXBMI
+my_heart <- heart %>% 
+  rename(
+    bmi = bmxbmi,
+    systolic_pressure = bpxsar,
+    diastolic_pressure = bpxdar,
+    folate_intake = dr1tfola,
+    age = ridageyr
+  ) %>% 
+  select(
+    -c(bpxdi1,
+       bpxdi2,
+       riagendr
+       )
+  )
+
+
+skim(my_heart)
+
+
+```
+
+
+
+
+### 2. Use `dplyr` to answer these questions:
+  - What is the minimum age in years?
+  - What is the maximum age in years?
+
+```{r, mimn_max_age}
+
+```
+
+### 3. Use `dplyr` to do the following:
+  - Make a new variable in `my_heart` called `age_months` that converts `age` to months.
+  - For individuals 280 months or older, what is the range of BMI values?
+    
+```{r}
+
+```
+
+
+## 4. Use `ggplot2` to make a scatterplot with age in years on the x-axis and BMI on the y-axis. Colour the points by `gender`, add a best fit line using `geom_smooth()`, and add appropriate labels.
+
+```{r}
+
+```
+
+### 5. Use `dplyr` and `ggplot2` to do the following:
+
+  - Type `?case_when` to read the help documents for this `dplyr` function. Use this function to make a new variable called `age_cat` with 3 values:
+      - `between(<name_of_age_var>, 0, 30)` is `age_cat == "Under 30"`
+      - `between(<name_of_age_var>, 31, 55)` is `age_cat == "31-55"`
+      - all other ages are `age_cat == "56+"`
+      
+You may find the attached graphic by Allison Horst useful      
+```{r case_when_graphic, echo=FALSE, out.width="100%"}
+knitr::include_graphics(here::here("images", "case_when_allison_horst.jpg"), error = FALSE)
+```
+
+      
+      
+  - Create a scatter plot with bmi on the x-axis and blood pressure on the y-axis, facetting by your new `age_cat` variable. Colour the points by `gender`.
+  - Look up `?facet_grid`, and recreate the same plot now using `gender ~ age_cat`.
+  - make sure the age ranges are in the correct order as, by default, R will sort the age categories alphabetically.
+  - use proper labelling (title, axes, caption, etc). and try `theme_bw()`
+  
+```{r, case_when}
+
+```
+
+
+
+# Our first Covid plot
+
+
+## Get the data
+
+This is a markdown chunk. Chunks always start and end with 3 backticks. 
+```{r}
+# data source: https://github.com/nytimes/covid-19-data
+
+url <- "https://github.com/nytimes/covid-19-data/raw/master/us-states.csv"
+
+```
+
+Hit the play button (triangle) and look at the Environment tab. You should see a new object called `url`. Paste `url` (without the backticks) into the console and press return.
+
+Next we'll use `vroom::vroom()` (meaning from package `vroom`, use the `vroom()` function) to read in the `csv` data from the website. You could use `readr::read_csv()`, but `vroom` is seriously fast in reading files.
+
+
+Hit play to run the chunk or put your cursor on the line and hit "Run".
+
+```{r, cache = TRUE}
+nyt_covid_by_state <- vroom(url) 
+```
+
+You should see the `nyt_covid_by_state` object in the Environment. Open it by expanding the blue arrow and then clicking on the object name. You'll see a Viewer open as a new tab. Note all of the things you can do in the viewer. There are `r nrow(nyt_covid_by_state)` observations and `r length(nyt_covid_by_state)` variables.
+
+It's always good practice to `glimpse` the data set to see variable types
+
+```{r}
+glimpse(nyt_covid_by_state)
+
+```
+
+Most of them are pretty-self explanatory, with the exception of `fips`. [Federal Information Processing Standards (FIPS)](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standards){target=_blank} 
+code is a US federal code that numbers states and territories in the US. States are defined with two digits; e.g., NY is 36, California is 06, etc. FIPS code extends to the county level with an additional four digits, so every county in the US has a unique six-digit identifier, where the first two digits represent the state. 
+
+## The pipe %>% operator 
+
+Read from left to right, top to bottom. When you read code, think of `%>%` as **and then**. 
+
+How would we read?
+
+```
+  nyt_covid_by_state %>%
+    group_by(state) %>%
+    count(sort=TRUE) 
+```
+
+- Start with dataframe `nyt_covid_by_state` **and then**
+- group by each state   **and then**
+- count how many observations you have. `sort=TRUE` will put them in descending order
+
+```{r, echo=FALSE}
+  nyt_covid_by_state %>%
+    group_by(state) %>%
+    count(sort=TRUE) 
+```
+
+## Make the output a bit nicer
+
+We can use `knitr::kable()` (which means the `kable()` function in the `{knitr}` package) and `kableExtra::kable_styling()` to format the tibble output for inclusion in our knitted file. Let us look at the first 10 rows.
+
+```{r}
+nyt_covid_by_state %>%
+  group_by(state) %>%
+  count(sort=TRUE) %>%
+  head(10) %>% 
+  kable() %>% 
+  kable_styling()
+```
+
+
+## An example of data wrangling
+
+Even clean and tidy data files, such as this one, are rarely ready for plotting straightaway. We'll unpack the specifics of what this code does as we move through the workshop series. For now, run the chunk.
+
+```{r, results='hide'}
+  nyt_covid_by_state %>%
+    group_by(state) %>%
+    mutate(daily_deaths = deaths - lag(deaths,1),
+           daily_cases = cases - lag(cases,1)
+           ) %>%
+    filter(daily_deaths >= 3) %>%
+    mutate(days = 1:n()) %>%
+    mutate(label = if_else(days == max(days), 
+                           state, 
+                           NA_character_)) %>%
+    ungroup() %>%
+    filter(state %in% c("New York", "Florida", "California", "Texas"))
+```
+
+No output is printed because we set the chunk options to hide.
+
+## Assign the output to an object
+
+This time we're going to run the same chunk but we'll assign the output to a new object called `df_deaths`. 
+
+```{r}
+df_deaths <- # this is a new object
+  nyt_covid_by_state %>%
+    group_by(state) %>%
+    mutate(daily_deaths = deaths - lag(deaths,1),
+           daily_cases = cases - lag(cases,1)
+           ) %>%
+    filter(daily_deaths >= 3) %>%
+    mutate(days = 1:n()) %>%
+    mutate(label = if_else(days == max(days), 
+                           state, 
+                           NA_character_)) %>%
+    ungroup() %>%
+    filter(state %in% c("New York", "Florida", "California", "Texas"))
+```
+
+You should see `df_deaths` in your Environment panel and you can now re-use it for later analyses.
+
+## `ggplot()`
+
+What happens when you just call ggplot on the dataframe, you just get an empty canvas. 
+
+```{r, out.width='70%'}
+# out.width='70%' makes it possible to fit the plot on the slide
+  ggplot(df_deaths)
+```
+
+## Aesthetic mappings
+
+With `aes()` we tell ggplot how our variables map onto plot features. For instance, `days` will go on the x-axis. We no longer have a completely empty canvas, but we can now see our axes. Still, we haven't added any geometry so besides the axes and default labels for axes, we don't have much else.
+
+```{r, out.width='70%'}
+  ggplot(df_deaths, aes(x=days, 
+                        y=deaths, 
+                        colour=state))
+```
+
+## Add a `geom`
+
+Next we'll tell `ggplot()` what type of geometric object to add-- let us add lines.
+
+```{r, out.width='70%'}
+  ggplot(df_deaths, aes(x=days, 
+                        y=cases, 
+                        colour=state)) +
+    geom_line() 
+
+```
+
+Notice the order in which states appear: California, Florida, New York, Texas. Since `state` is a character variable,the default ordering is alphabetical. We will not use the legend to the right, but what if we wanted to sort states by number of deaths?
+
+## We have more to add to our plot, but first...
+
+We don't have to keep repeating code over and over. We can assign what we have so far to an object, let's call it `p`, and then add to `p`. 
+
+```{r, out.width='100%'}
+p <- ggplot(df_deaths, aes(x=days, 
+                           y=deaths,  
+                           colour=state)) +
+      geom_line() 
+
+p <- p + 
+    scale_y_log10(breaks = c(1, 10, 20, 50, 100, 
+                             200, 500, 1000, 2000, 5000, 10000, 20000 )) +
+    scale_x_continuous(breaks = c(1, 30, 60, 90, 120, 150, 180),
+                       limits = c(1, 180)) +
+    geom_text_repel(aes(label = label),
+                     nudge_x = 1,
+                     na.rm = TRUE) 
+  
+p  
+
+# We can also use facet_wrap() to get one plot per state
+p + facet_wrap(~state)
+  
+```
+
+## Make your plots nicer
+
+You can lose hours and days making plots perfect. Let's use the Economist and FiveThirtyEight themes from the `ggthemes` library and. In addition, we will also use the `hrbrthemes` package and `theme_ft_rc` for a *ggplot2 theme with opinionated defaults and an emphasis on typography*.
+
+```{r}
+p1 <- p + 
+    theme_economist() +
+     theme(legend.position = "none",
+           axis.title.x = element_text()) + 
+    labs(title = "Main title here- what question do you address?",
+         subtitle = "Daily Covid-19 deaths-- days since 3 daily deaths first recorded",
+         x = "Number of days since 3 daily deaths first recorded", 
+         y = "",
+         caption = "Source: https://github.com/nytimes/covid-19-data")
+
+
+p1
+
+
+p2 <- p + 
+    theme_fivethirtyeight() +
+    theme(legend.position = "none",
+          axis.title.x = element_text()) + 
+    labs(title = "Main title here- what question do you address?",
+         subtitle = "Daily Covid-19 deaths-- days since 3 daily deaths first recorded",
+         x = "Number of days since 3 daily deaths first recorded", 
+         y = "",
+         caption = "Source: https://github.com/nytimes/covid-19-data")
+
+p2
+
+
+p3 <-   p +
+     theme_ft_rc()+
+        theme(legend.position = "none",
+          axis.title.x = element_text()) + 
+    labs(title = "Main title here- what question do you address?",
+         subtitle = "Daily Covid-19 deaths-- days since 3 daily deaths first recorded",
+         x = "Number of days since 3 daily deaths first recorded", 
+         y = "",
+         caption = "Source: https://github.com/nytimes/covid-19-data")
+
+p3
+
+```
+
+
+## Calculate and plot 7-day moving averages of deaths
+
+This time we're going to calculate the 7 day rolling average, much like the [Financial Times](https://ig.ft.com/coronavirus-chart/?areas=usa&areas=gbr&areasRegional=usny&areasRegional=usca&areasRegional=usfl&areasRegional=ustx&cumulative=0&logScale=1&perMillion=0&values=deaths) does
+
+```{r}
+df_deaths_rolling_mean <- df_deaths %>%   # this is a new object
+  group_by(state) %>%
+  mutate( 
+    #calculate 3-day rolling average
+    death3 = zoo::rollmean(daily_deaths, k=3, fill = NA),
+    cases3 = zoo::rollmean(daily_cases, k=3, fill = NA),
+    
+    #calculate 5-day rolling average
+    death5 = zoo::rollmean(daily_deaths, k=5, fill = NA),
+    cases5 = zoo::rollmean(daily_cases, k=5, fill = NA),
+    
+    #calculate 7-day rolling average
+    death7 = zoo::rollmean(daily_deaths, k=7, fill = NA),
+    cases7 = zoo::rollmean(daily_cases, k=7, fill = NA)) %>%
+    filter(death7 >= 3) %>%
+    mutate(days = 1:n()) %>%
+    mutate(label = if_else(days == max(days), 
+                           state, 
+                           NA_character_)) %>%
+    ungroup() %>%
+    filter(state %in% c("New York", "Florida", "California", "Texas"))
+```
+
+
+```{r}
+p_7day <- ggplot(df_deaths_rolling_mean, aes(x=days, 
+                           y=death7,  
+                           colour=state)) +
+      geom_line() 
+
+p_7day <- p_7day + 
+    scale_y_log10(breaks = c(1, 10, 20, 50, 100, 200, 500, 1000 )) +
+    scale_x_continuous(breaks = c(1, 30, 60, 90, 120, 150, 180),
+                       limits = c(1, 180)) +
+    geom_text_repel(aes(label = label),
+                     nudge_x = 1,
+                     na.rm = TRUE) 
+
+p_7day
+```
+
+Let us again make these plots better using some themes
+```{r}
+
+p1_7day <- p_7day + 
+    theme_economist() +
+     theme(legend.position = "none",
+           axis.title.x = element_text()) + 
+    labs(title = "New deaths attributed to Covid-19 in NY, CA, TX, FL",
+         subtitle = "Seven-day rolling average of new deaths, by number of days since 3 average daily deaths first recorded",
+         x = "Number of days since 3 average daily deaths first recorded", 
+         y = "",
+         caption = "Source: https://github.com/nytimes/covid-19-data")
+
+
+p1_7day
+
+
+p2_7day <- p_7day + 
+    theme_fivethirtyeight() +
+    theme(legend.position = "none",
+          axis.title.x = element_text()) + 
+    labs(title = "New deaths attributed to Covid-19 in NY, CA, TX, FL",
+         subtitle = "Seven-day rolling average of new deaths, by number of days since 3 average daily deaths first recorded",
+         x = "Number of days since 3 average daily deaths first recorded", 
+         y = "",
+         caption = "Source: https://github.com/nytimes/covid-19-data")
+
+p2_7day
+
+
+p3_7day <-  p_7day +
+     theme_ft_rc()+
+        theme(legend.position = "none",
+          axis.title.x = element_text()) + 
+    labs(title = "New deaths attributed to Covid-19 in NY, CA, TX, FL",
+         subtitle = "Seven-day rolling average of new deaths, by number of days since 3 average daily deaths first recorded",
+         x = "Number of days since 3 average daily deaths first recorded", 
+         y = "",
+         caption = "Source: https://github.com/nytimes/covid-19-data")
+
+p3_7day
+```
+
+
+# CDC COVID-19 Case Surveillance Public Use Data  
+
+https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf
+
+
+```{r, cache = TRUE}
+url <- "https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD"
+
+
+cdc_covid_data <- vroom(url)%>%
+  clean_names()
+
+# if you wanted to keep a local copy...
+# write_csv(cdc_covid_data,"COVID-19_Case_Surveillance_Public_Use_Data.csv" )
+# vroom_write(cdc_covid_data,"COVID-19_Case_Surveillance_Public_Use_Data.csv" )
+
+
+clean_cdc_covid_data <- cdc_covid_data %>% 
+  rename(race = race_and_ethnicity_combined)
+
+glimpse(clean_cdc_covid_data)
+# skim(clean_cdc_covid_data)
+
+
+clean_cdc_covid_data %>% 
+  group_by(current_status) %>% 
+  count(sort=TRUE)
+
+clean_cdc_covid_data %>% 
+  group_by(sex) %>% 
+  count(sort=TRUE)
+
+
+clean_cdc_covid_data %>% 
+  group_by(age_group) %>% 
+  count(sort=TRUE)
+
+clean_cdc_covid_data %>% 
+  group_by(race) %>% 
+  count(sort=TRUE)
+
+clean_cdc_covid_data %>% 
+  group_by(hosp_yn) %>% 
+  count(sort=TRUE)
+
+clean_cdc_covid_data %>% 
+  group_by(icu_yn) %>% 
+  count(sort=TRUE)
+
+clean_cdc_covid_data %>% 
+  group_by(death_yn) %>% 
+  count(sort=TRUE)
+
+clean_cdc_covid_data %>% 
+  group_by(medcond_yn) %>% 
+  count(sort=TRUE)
+
+
+
+```
+
+
+
+
+#  Covid Mobility: using `skimr::skim()` and `facet_wrap()`
+
+[Kieran Healy has produced the `covdata` package](https://kjhealy.github.io/covdata/) that contains all sorts of Covid-19 data, some of which related to mobility indices that Apple and Google provided.
+Data from Apple on relative trends in mobility in cities and countries since mid-January of 2020, based on usage of their Maps application.
+Data from Google on relative trends in mobility in regions and countries since mid-January of 2020, based on location and activity information
+
+You can install covdata from GitHub with:
+```
+remotes::install_github("kjhealy/covdata")
+```
+
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
+library(covdata)
+
+
+glimpse(google_mobility)
+
+
+google_mobility %>% 
+  filter(country_region %in% c("Greece", "Italy", "Brazil", "United Kingdom", "Spain", "United States")) %>% 
+  ggplot(aes(x=date, y=pct_diff, colour=country_region))+
+  # geom_point(alpha=0.05)+  # this will take a long time to render
+  geom_smooth()+
+  facet_grid(rows = vars(country_region),
+             cols = vars(type), 
+             )+
+  theme_minimal()+
+  theme(legend.position = "none")
+
+```
+
