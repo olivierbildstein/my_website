@@ -1,0 +1,810 @@
+---
+title: "Homework 2"
+output: html_document
+---
+
+
+
+<div id="climate-change-and-temperature-anomalies" class="section level1">
+<h1>Climate change and temperature anomalies</h1>
+<p>If we wanted to study climate change, we can find data on the <em>Combined Land-Surface Air and Sea-Surface Water Temperature Anomalies</em> in the Northern Hemisphere at <a href="https://data.giss.nasa.gov/gistemp">NASA’s Goddard Institute for Space Studies</a>. The <a href="https://data.giss.nasa.gov/gistemp/tabledata_v3/NH.Ts+dSST.txt">tabular data of temperature anomalies can be found here</a></p>
+<p>To define temperature anomalies you need to have a reference, or base, period which NASA clearly states that it is the period between 1951-1980.</p>
+<p>Run the code below to load the file:</p>
+<pre class="r"><code>weather &lt;- 
+  read_csv(&quot;https://data.giss.nasa.gov/gistemp/tabledata_v3/NH.Ts+dSST.csv&quot;, 
+           skip = 1, 
+           na = &quot;***&quot;)</code></pre>
+<p>Notice that, when using this function, we added two options: <code>skip</code> and <code>na</code>.</p>
+<ol style="list-style-type: decimal">
+<li>The <code>skip=1</code> option is there as the real data table only starts in Row 2, so we need to skip one row.</li>
+<li><code>na = "***"</code> option informs R how missing observations in the spreadsheet are coded. When looking at the spreadsheet, you can see that missing data is coded as "***". It is best to specify this here, as otherwise some of the data is not recognized as numeric data.</li>
+</ol>
+<p>Once the data is loaded, notice that there is an object titled <code>weather</code> in the <code>Environment</code> panel. If you cannot see the panel (usually on the top-right), go to <code>Tools</code> &gt; <code>Global Options</code> &gt; <code>Pane Layout</code> and tick the checkbox next to <code>Environment</code>. Click on the <code>weather</code> object, and the dataframe will pop up on a seperate tab. Inspect the dataframe.</p>
+<p>For each month and year, the dataframe shows the deviation of temperature from the normal (expected). Further the dataframe is in wide format.</p>
+<p>You have two objectives in this section:</p>
+<ol style="list-style-type: decimal">
+<li><p>Select the year and the twelve month variables from the <code>weather</code> dataset. We do not need the others (J-D, D-N, DJF, etc.) for this assignment. Hint: use <code>select()</code> function.</p></li>
+<li><p>Convert the dataframe from wide to ‘long’ format. Hint: use <code>gather()</code> or <code>pivot_longer()</code> function. Name the new dataframe as <code>tidyweather</code>, name the variable containing the name of the month as <code>month</code>, and the temperature deviation values as <code>delta</code>.</p></li>
+</ol>
+<pre class="r"><code>weather &lt;- weather %&gt;% 
+  select(Year, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec)
+
+tidyweather &lt;- pivot_longer(weather, cols = 2:13,
+                            names_to = &quot;month&quot;,
+                            values_to = &quot;delta&quot;
+)</code></pre>
+<p>Inspect your dataframe. It should have three variables now, one each for</p>
+<ol style="list-style-type: decimal">
+<li>year,</li>
+<li>month, and</li>
+<li>delta, or temperature deviation.</li>
+</ol>
+<div id="plotting-information" class="section level2">
+<h2>Plotting Information</h2>
+<p>Let us plot the data using a time-series scatter plot, and add a trendline. To do that, we first need to create a new variable called <code>date</code> in order to ensure that the <code>delta</code> values are plot chronologically.</p>
+<blockquote>
+<p>In the following chunk of code, I used the <code>eval=FALSE</code> argument, which does not run a chunk of code; I did so that you can knit the document before tidying the data and creating a new dataframe <code>tidyweather</code>. When you actually want to run this code and knit your document, you must delete <code>eval=FALSE</code>, <strong>not just here but in all chunks were <code>eval=FALSE</code> appears.</strong></p>
+</blockquote>
+<pre class="r"><code>tidyweather &lt;- tidyweather %&gt;%
+  mutate(date = ymd(paste(as.character(Year), month, &quot;1&quot;)),
+         month = month(date),
+         year = year(date))
+
+ggplot(tidyweather, aes(x=date, y = delta))+
+  geom_point()+
+  geom_smooth(color=&quot;red&quot;) +
+  theme_bw() +
+  labs (
+    title = &quot;Weather Anomalies&quot;,
+    x= &quot;Date&quot;,
+    y= &quot;Temperature Diviation&quot;
+  )</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/scatter_plot-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>Is the effect of increasing temperature more pronounced in some months? Use <code>facet_wrap()</code> to produce a seperate scatter plot for each month, again with a smoothing line. Your chart should have human-readable labels; that is, each month should be labeled “Jan”, “Feb”, “Mar” (full or abbreviated month names are fine), not <code>1</code>, <code>2</code>, <code>3</code>.</p>
+<p><img src="/blogs/homework2/homework2_files/figure-html/facet_wrap-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>It is sometimes useful to group data into different time periods to study historical data. For example, we often refer to decades such as 1970s, 1980s, 1990s etc. to refer to a period of time. NASA calculates a temperature anomaly, as difference from the base period of 1951-1980. The code below creates a new data frame called <code>comparison</code> that groups data in five time periods: 1881-1920, 1921-1950, 1951-1980, 1981-2010 and 2011-present.</p>
+<p>We remove data before 1800 and before using <code>filter</code>. Then, we use the <code>mutate</code> function to create a new variable <code>interval</code> which contains information on which period each observation belongs to. We can assign the different periods using <code>case_when()</code>.</p>
+<pre class="r"><code>comparison &lt;- tidyweather %&gt;% 
+  filter(Year&gt;= 1881) %&gt;%     #remove years prior to 1881
+  #create new variable &#39;interval&#39;, and assign values based on criteria below:
+  mutate(interval = case_when(
+    Year %in% c(1881:1920) ~ &quot;1881-1920&quot;,
+    Year %in% c(1921:1950) ~ &quot;1921-1950&quot;,
+    Year %in% c(1951:1980) ~ &quot;1951-1980&quot;,
+    Year %in% c(1981:2010) ~ &quot;1981-2010&quot;,
+    TRUE ~ &quot;2011-present&quot;
+  ))</code></pre>
+<p>Inspect the <code>comparison</code> dataframe by clicking on it in the <code>Environment</code> pane.</p>
+<p>Now that we have the <code>interval</code> variable, we can create a density plot to study the distribution of monthly deviations (<code>delta</code>), grouped by the different time periods we are interested in. Set <code>fill</code> to <code>interval</code> to group and colour the data by different time periods.</p>
+<pre class="r"><code>#intervals
+ggplot(comparison, aes(x=delta, fill=interval))+
+  geom_density(alpha=0.2) +   #density plot with tranparency set to 20%
+  theme_bw() +                #theme
+  labs (
+    title = &quot;Density Plot for Yearly Temperature Anomalies&quot;,
+    y     = &quot;Density&quot;         #changing y-axis label to sentence case
+  )</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/density_plot-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#month
+ggplot(comparison, aes(x=delta, fill=month))+
+  geom_density(alpha=0.2) +   #density plot with tranparency set to 20%
+  theme_bw() +                #theme
+  labs (
+    title = &quot;Density Plot for Monthly Temperature Anomalies&quot;,
+    y     = &quot;Density&quot;         #changing y-axis label to sentence case
+  )</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/density_plot-2.png" width="648" style="display: block; margin: auto;" /></p>
+<p>So far, we have been working with monthly anomalies. However, we might be interested in average annual anomalies. We can do this by using <code>group_by()</code> and <code>summarise()</code>, followed by a scatter plot to display the result.</p>
+<pre class="r"><code>#creating yearly averages
+average_annual_anomaly &lt;- tidyweather %&gt;% 
+  group_by(Year) %&gt;%   #grouping data by Year
+  
+  # creating summaries for mean delta 
+  # use `na.rm=TRUE` to eliminate NA (not available) values 
+  summarise(annual_average_delta = mean(delta, na.rm=TRUE)) 
+
+#plotting the data:
+ggplot(average_annual_anomaly, aes(x=Year, y= annual_average_delta))+
+  geom_point()+
+  
+  #Fit the best fit line, using LOESS method
+  geom_smooth() +
+  
+  #change to theme_bw() to have white background + black frame around plot
+  theme_bw() +
+  labs (
+    title = &quot;Average Yearly Anomaly&quot;,
+    y     = &quot;Average Annual Delta&quot;
+  )                         </code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/averaging-1.png" width="648" style="display: block; margin: auto;" /></p>
+</div>
+<div id="confidence-interval-for-delta" class="section level2">
+<h2>Confidence Interval for <code>delta</code></h2>
+<p><a href="https://earthobservatory.nasa.gov/world-of-change/decadaltemp.php">NASA points out on their website</a> that</p>
+<blockquote>
+<p>A one-degree global change is significant because it takes a vast amount of heat to warm all the oceans, atmosphere, and land by that much. In the past, a one- to two-degree drop was all it took to plunge the Earth into the Little Ice Age.</p>
+</blockquote>
+<p>Your task is to construct a confidence interval for the average annual delta since 2011, both using a formula and using a bootstrap simulation with the <code>infer</code> package. Recall that the dataframe <code>comparison</code> has already grouped temperature anomalies according to time intervals; we are only interested in what is happening between 2011-present.</p>
+<pre class="r"><code>formula_ci &lt;- comparison %&gt;% 
+  filter(interval==&quot;2011-present&quot;, !is.na(delta)) %&gt;% 
+  group_by(Year) %&gt;% 
+  summarise(min_delta=min(delta),
+            mean_delta=mean(delta),
+            median_delta=median(delta),
+            max_delta=max(delta),
+            sd_delta=sd(delta),
+            count=n(),
+            # get t-critical value with (n-1) degrees of freedom
+            t_critical = qt(0.975, count-1),
+            se_delta = sd(delta)/sqrt(count),
+            margin_of_error = t_critical * se_delta,
+            delta_low = mean_delta - margin_of_error,
+            delta_high = mean_delta + margin_of_error
+  )
+  
+
+  # choose the interval 2011-present
+  # what dplyr verb will you use? 
+
+  # calculate summary statistics for temperature deviation (delta) 
+  # calculate mean, SD, count, SE, lower/upper 95% CI
+  # what dplyr verb will you use? 
+
+#print out formula_CI
+formula_ci</code></pre>
+<pre><code>## # A tibble: 9 x 12
+##    Year min_delta mean_delta median_delta max_delta sd_delta count t_critical
+##   &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt;
+## 1  2011      0.54      0.7          0.685      0.87    0.103    12       2.20
+## 2  2012      0.47      0.765        0.81       1.01    0.160    12       2.20
+## 3  2013      0.65      0.753        0.735      1.05    0.111    12       2.20
+## 4  2014      0.67      0.9          0.885      1.14    0.140    12       2.20
+## 5  2015      0.9       1.13         1.13       1.45    0.163    12       2.20
+## 6  2016      1.02      1.28         1.10       1.92    0.326    12       2.20
+## 7  2017      0.85      1.13         1.08       1.47    0.213    12       2.20
+## 8  2018      0.81      0.989        0.925      1.24    0.158    12       2.20
+## 9  2019      0.94      1.12         1.11       1.44    0.163     7       2.45
+## # … with 4 more variables: se_delta &lt;dbl&gt;, margin_of_error &lt;dbl&gt;,
+## #   delta_low &lt;dbl&gt;, delta_high &lt;dbl&gt;</code></pre>
+<pre class="r"><code>ggplot(formula_ci, aes(x=reorder(Year,mean_delta), y=mean_delta, colour=Year)) +
+  geom_point() +
+  geom_errorbar(width=.5, aes(ymin=delta_low, ymax=delta_high)) + 
+  labs(x=&quot; &quot;,
+       y= &quot;Mean Delta&quot;, 
+       title=&quot;Which year has the greatest variability?&quot;) + 
+  theme_bw()+
+  coord_flip()+
+  theme(legend.position = &quot;none&quot;)+
+  NULL</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/calculate_CI_using_formula-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Confidence Interval for average annual delta over the whole period of 2011-present
+formula_ci_interval &lt;- comparison %&gt;% 
+  filter(interval==&quot;2011-present&quot;, !is.na(delta)) %&gt;% 
+  summarise(min_delta=min(delta),
+            mean_delta=mean(delta),
+            median_delta=median(delta),
+            max_delta=max(delta),
+            sd_delta=sd(delta),
+            count=n(),
+            # get t-critical value with (n-1) degrees of freedom
+            t_critical = qt(0.975, count-1),
+            se_delta = sd(delta)/sqrt(count),
+            margin_of_error = t_critical * se_delta,
+            delta_low = mean_delta - margin_of_error,
+            delta_high = mean_delta + margin_of_error
+  )
+  
+
+
+#print out formula_CI_interval
+formula_ci_interval</code></pre>
+<pre><code>## # A tibble: 1 x 11
+##   min_delta mean_delta median_delta max_delta sd_delta count t_critical se_delta
+##       &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt;    &lt;dbl&gt;
+## 1      0.47      0.966         0.94      1.92    0.262   103       1.98   0.0259
+## # … with 3 more variables: margin_of_error &lt;dbl&gt;, delta_low &lt;dbl&gt;,
+## #   delta_high &lt;dbl&gt;</code></pre>
+<pre class="r"><code># use the infer package to construct a 95% CI for delta
+
+
+set.seed(1234)
+
+#bootstrap for mean delta
+boot_delta &lt;- comparison %&gt;% 
+  filter(interval==&quot;2011-present&quot;, !is.na(delta)) %&gt;% 
+  
+  # Specify the variable of interest
+  specify(response = delta) %&gt;%
+  
+  # Generate a bunch of bootstrap samples
+  generate(reps = 1000, type = &quot;bootstrap&quot;) %&gt;%
+  
+  # Find the median of each sample
+  calculate(stat = &quot;mean&quot;)
+
+percentile_ci &lt;- boot_delta %&gt;% 
+  get_confidence_interval(level = 0.95, type = &quot;percentile&quot;)
+percentile_ci</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   lower_ci upper_ci
+##      &lt;dbl&gt;    &lt;dbl&gt;
+## 1    0.917     1.02</code></pre>
+<pre class="r"><code>mean_delta &lt;- ggplot(boot_delta, aes(x = stat)) +
+  geom_histogram() +
+  labs(title= &quot;Bootstrap distribution of means&quot;,
+       x = &quot;Mean delta per bootstrap sample&quot;,
+       y = &quot;Count&quot;) +
+  geom_vline(xintercept = percentile_ci$lower_ci, colour = &#39;orange&#39;, size = 2, linetype = 2) +
+  geom_vline(xintercept = percentile_ci$upper_ci, colour = &#39;orange&#39;, size = 2, linetype = 2) 
+
+visualize(boot_delta) + 
+  shade_ci(endpoints = percentile_ci,fill = &quot;khaki&quot;)+
+  geom_vline(xintercept = percentile_ci$lower_ci, colour = &quot;red&quot;)+
+  geom_vline(xintercept = percentile_ci$upper_ci, colour = &quot;red&quot;)</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/calculate_CI_using_bootstrap-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># bootstrap for MEDIAN delta
+boot_med_delta &lt;- comparison %&gt;%
+  # Select 2-bedroom flat
+  filter(interval==&quot;2011-present&quot;) %&gt;%
+  
+  # Specify the variable of interest
+  specify(response = delta) %&gt;%
+  
+  # Generate a bunch of bootstrap samples
+  generate(reps = 1000, type = &quot;bootstrap&quot;) %&gt;%
+  
+  # Find the median of each sample
+  calculate(stat = &quot;median&quot;)
+
+percentile_med_ci &lt;- boot_med_delta %&gt;%
+  get_ci(level = 0.95, type = &quot;percentile&quot;)
+
+median_delta &lt;- ggplot(boot_delta, aes(x = stat)) +
+  geom_histogram() +
+  labs(title= &quot;Bootstrap distribution of medians&quot;,
+       x = &quot;Median delta per bootstrap sample&quot;,
+       y = &quot;Count&quot;) +
+  geom_vline(xintercept = percentile_ci$lower_ci, colour = &#39;orange&#39;, size = 2, linetype = 2) +
+  geom_vline(xintercept = percentile_ci$upper_ci, colour = &#39;orange&#39;, size = 2, linetype = 2)
+
+visualize(boot_med_delta) +
+  shade_ci(endpoints = percentile_med_ci,fill = &quot;khaki&quot;)+
+  geom_vline(xintercept = percentile_med_ci$lower_ci, colour = &quot;red&quot;)+
+  geom_vline(xintercept = percentile_med_ci$upper_ci, colour = &quot;red&quot;)</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/calculate_CI_using_bootstrap-2.png" width="648" style="display: block; margin: auto;" /></p>
+<blockquote>
+<p>What is the data showing us? Please type your answer after (and outside!) this blockquote. You have to explain what you have done, and the interpretation of the result. One paragraph max, please!</p>
+</blockquote>
+<p>Bootstrapping is a nonparametric method which lets us compute estimated standard errors, confidence intervals and hypothesis testing. We resampled a given data set a specified number of times (1000) and calculate a specific statistic from each sample (once median and once mean). From there we can see with what certainty we hit the numbers.</p>
+</div>
+</div>
+<div id="general-social-survey-gss" class="section level1">
+<h1>General Social Survey (GSS)</h1>
+<p>The <a href="http://www.gss.norc.org/">General Social Survey (GSS)</a> gathers data on American society in order to monitor and explain trends in attitudes, behaviours, and attributes. Many trends have been tracked for decades, so one can see the evolution of attitudes, etc in American Society.</p>
+<p>In this assignment we analyze data from the <strong>2016 GSS sample data</strong>, using it to estimate values of <em>population parameters</em> of interest about US adults. The GSS sample data file has 2867 observations of 935 variables, but we are only interested in very few of these variables and you are using a smaller file.</p>
+<pre class="r"><code>gss &lt;- read_csv(here::here(&quot;data&quot;, &quot;smallgss2016.csv&quot;), 
+                na = c(&quot;&quot;, &quot;Don&#39;t know&quot;,
+                       &quot;No answer&quot;, &quot;Not applicable&quot;))</code></pre>
+<p>You will also notice that many responses should not be taken into consideration, like “No Answer”, “Don’t Know”, “Not applicable”, “Refused to Answer”.</p>
+<p>We will be creating 95% confidence intervals for population parameters. The variables we have are the following:</p>
+<ul>
+<li>hours and minutes spent on email weekly. The responses to these questions are recorded in the <code>emailhr</code> and <code>emailmin</code> variables. For example, if the response is 2.50 hours, this would be recorded as emailhr = 2 and emailmin = 30.</li>
+<li><code>snapchat</code>, <code>instagrm</code>, <code>twitter</code>: whether respondents used these social media in 2016</li>
+<li><code>sex</code>: Female - Male</li>
+<li><code>degree</code>: highest education level attained</li>
+</ul>
+<div id="instagram-and-snapchat-by-sex" class="section level2">
+<h2>Instagram and Snapchat, by sex</h2>
+<p>Can we estimate the <em>population</em> proportion of Snapchat or Instagram users in 2016?</p>
+<ol style="list-style-type: decimal">
+<li>Create a new variable, <code>snap_insta</code> that is <em>Yes</em> if the respondent reported using any of Snapchat (<code>snapchat</code>) or Instagram (<code>instagrm</code>), and <em>No</em> if not. If the recorded value was NA for both of these questions, the value in your new variable should also be NA.</li>
+<li>Calculate the proportion of Yes’s for <code>snap_insta</code> among those who answered the question, i.e. excluding NAs.</li>
+<li>Using the CI formula for proportions, please construct 95% CIs for men and women who used either Snapchat or Instagram</li>
+</ol>
+<pre class="r"><code>#Adding variable snap_insta
+gss_tidy &lt;- gss %&gt;% 
+  mutate(snap_insta = ifelse((snapchat == &quot;Yes&quot; | instagrm == &quot;Yes&quot;), &quot;Yes&quot;, ifelse((snapchat == &quot;No&quot; &amp;  instagrm == &quot;No&quot;), &quot;No&quot;, &quot;NA&quot;)))
+
+#Calculating proportion of Yes&#39;s for snap_insta
+snapinsta_male_yes &lt;- nrow(gss_tidy %&gt;% 
+  filter(sex == &quot;Male&quot;, snap_insta==&quot;Yes&quot;))
+
+snapinsta_male_no &lt;-  nrow(gss_tidy %&gt;% 
+  filter(sex == &quot;Male&quot;, snap_insta==&quot;No&quot;))
+
+snapinsta_female_yes &lt;- nrow(gss_tidy %&gt;% 
+  filter(sex == &quot;Female&quot;, snap_insta==&quot;Yes&quot;))
+
+snapinsta_female_no &lt;-  nrow(gss_tidy %&gt;% 
+  filter(sex == &quot;Female&quot;, snap_insta==&quot;No&quot;))
+
+snap_insta_male_proportion = snapinsta_male_yes/(snapinsta_male_yes + snapinsta_male_no)
+snap_insta_female_proportion = snapinsta_female_yes/(snapinsta_female_yes + snapinsta_female_no)
+
+#Proportions of men and women who used either Snapchat or Instagram
+snap_insta_male_proportion</code></pre>
+<pre><code>## [1] 0.318</code></pre>
+<pre class="r"><code>snap_insta_female_proportion</code></pre>
+<pre><code>## [1] 0.419</code></pre>
+<pre class="r"><code>#95% CI for men and women who used Snapchat or Instagram
+#We can use the Normal Approximation to the bionomial distribution given we have more than 10 successes and 10 failures
+Men_CI &lt;- prop.test(snapinsta_male_yes,snapinsta_male_yes + snapinsta_male_no)
+Female_CI &lt;- prop.test(snapinsta_female_yes,snapinsta_female_yes + snapinsta_female_no)
+
+#reject null hypothesis for both male and female
+Men_CI</code></pre>
+<pre><code>## 
+##  1-sample proportions test with continuity correction
+## 
+## data:  snapinsta_male_yes out of +snapinsta_male_yes out of snapinsta_male_yessnapinsta_male_yes out of snapinsta_male_no
+## X-squared = 79, df = 1, p-value &lt;2e-16
+## alternative hypothesis: true p is not equal to 0.5
+## 95 percent confidence interval:
+##  0.282 0.357
+## sample estimates:
+##     p 
+## 0.318</code></pre>
+<pre class="r"><code>Female_CI</code></pre>
+<pre><code>## 
+##  1-sample proportions test with continuity correction
+## 
+## data:  snapinsta_female_yes out of +snapinsta_female_yes out of snapinsta_female_yessnapinsta_female_yes out of snapinsta_female_no
+## X-squared = 20, df = 1, p-value = 8e-06
+## alternative hypothesis: true p is not equal to 0.5
+## 95 percent confidence interval:
+##  0.384 0.455
+## sample estimates:
+##     p 
+## 0.419</code></pre>
+<p>The 95% CI for the proportion of men who used Snapchat or Instagram is [0.282, 0.357] whereas the 95% CI for the proportion of females who used Snapchat or Instagram is [0.384, 0.455].</p>
+</div>
+<div id="twitter-by-education-level" class="section level2">
+<h2>Twitter, by education level</h2>
+<p>Can we estimate the <em>population</em> proportion of Twitter users by education level in 2016?.</p>
+<p>There are 5 education levels in variable <code>degree</code> which, in ascneding order of years of education, are Lt high school, High School, Junior college, Bachelor, Graduate.</p>
+<ol style="list-style-type: decimal">
+<li>Turn <code>degree</code> from a character variable into a factor variable. Make sure the order is the correct one and that levels are not sorted alphabetically which is what R by default does.</li>
+<li>Create a new variable, <code>bachelor_graduate</code> that is <em>Yes</em> if the respondent has either a <code>Bachelor</code> or <code>Graduate</code> degree. As before, if the recorded value for either was NA, the value in your new variable should also be NA.</li>
+<li>Calculate the proportion of <code>bachelor_graduate</code> who do (Yes) and who don’t (No) use twitter.</li>
+<li>Using the CI formula for proportions, please construct two 95% CIs for <code>bachelor_graduate</code> vs whether they use (Yes) and don’t (No) use twitter.</li>
+<li>Do these two Confidence Intervals overlap?</li>
+</ol>
+<pre class="r"><code>#Turning &quot;degree&quot; from a character variable into a factor variable and setting the appropriate levels
+gss_tidy &lt;- gss_tidy %&gt;% 
+  mutate(degree = factor(degree, levels = c(&quot;Lt high school&quot;, &quot;High School&quot;, &quot;Junior college&quot;, &quot;Bachelor&quot;, &quot;Graduate&quot;)))
+
+#Creating new variable &quot;bachelor_graduate&quot;
+gss_tidy &lt;- gss %&gt;% 
+  mutate(bachelor_graduate = ifelse((degree == &quot;Bachelor&quot; | degree == &quot;Graduate&quot;), &quot;Yes&quot;, ifelse((degree == &quot;NA&quot;), &quot;NA&quot;, &quot;No&quot;))) 
+
+#Calculate the proportion of &quot;bachelor_graduate&quot; who do and do not use twitter
+twitter_yes &lt;- nrow(gss_tidy %&gt;% 
+                      filter(bachelor_graduate == &quot;Yes&quot;, twitter == &quot;Yes&quot;))
+twitter_no &lt;- nrow(gss_tidy %&gt;% 
+                     filter(bachelor_graduate == &quot;Yes&quot;, twitter == &quot;No&quot;))
+
+twitter_yes_proportion &lt;- twitter_yes/(twitter_yes+twitter_no)
+twitter_no_proportion &lt;- twitter_no/(twitter_no+twitter_yes)
+
+#Proportions of individuals with a bachelors or higher education who do and who don&#39;t use twitter
+twitter_yes_proportion</code></pre>
+<pre><code>## [1] 0.233</code></pre>
+<pre class="r"><code>twitter_no_proportion</code></pre>
+<pre><code>## [1] 0.767</code></pre>
+<pre class="r"><code>#95% CI for bachelor_graduate who use twitter, using the Normal Apporximation to the Binomial Distribution
+twitter_yes_CI &lt;- prop.test(twitter_yes, twitter_yes + twitter_no)
+
+#95% CI for bachelor_graduate who do not use twitter, using the Normal Apporximation to the Binomial Distribution
+twitter_no_CI &lt;- prop.test(twitter_no, twitter_yes + twitter_no)
+
+twitter_yes_CI</code></pre>
+<pre><code>## 
+##  1-sample proportions test with continuity correction
+## 
+## data:  twitter_yes out of +twitter_yes out of twitter_yestwitter_yes out of twitter_no
+## X-squared = 138, df = 1, p-value &lt;2e-16
+## alternative hypothesis: true p is not equal to 0.5
+## 95 percent confidence interval:
+##  0.197 0.274
+## sample estimates:
+##     p 
+## 0.233</code></pre>
+<pre class="r"><code>twitter_no_CI</code></pre>
+<pre><code>## 
+##  1-sample proportions test with continuity correction
+## 
+## data:  twitter_no out of +twitter_no out of twitter_yestwitter_no out of twitter_no
+## X-squared = 138, df = 1, p-value &lt;2e-16
+## alternative hypothesis: true p is not equal to 0.5
+## 95 percent confidence interval:
+##  0.726 0.803
+## sample estimates:
+##     p 
+## 0.767</code></pre>
+<p>The 95% confidence interval for the proportion of bachelor or higher educated individuals who use twitter is [0.197, 0.274] whereas the confidence interval for individuals who don’t use twitter is [0.726, 0.803]. This shows that the two confidence intervals overlap.</p>
+</div>
+<div id="email-usage" class="section level2">
+<h2>Email usage</h2>
+<p>Can we estimate the <em>population</em> parameter on time spent on email weekly?</p>
+<ol style="list-style-type: decimal">
+<li>Create a new variable called <code>email</code> that combines <code>emailhr</code> and <code>emailmin</code> to reports the number of minutes the respondents spend on email weekly.</li>
+<li>Visualise the distribution of this new variable. Find the mean and the median number of minutes respondents spend on email weekly. Is the mean or the median a better measure of the typical amoung of time Americans spend on email weekly? Why?</li>
+<li>Using the <code>infer</code> package, calculate a 95% bootstrap confidence interval for the mean amount of time Americans spend on email weekly. Interpret this interval in context of the data, reporting its endpoints in “humanized” units (e.g. instead of 108 minutes, report 1 hr and 8 minutes). If you get a result that seems a bit odd, discuss why you think this might be the case.</li>
+<li>Would you expect a 99% confidence interval to be wider or narrower than the interval you calculated above? Explain your reasoning.</li>
+</ol>
+<pre class="r"><code>#1. Creating a new variable called &#39;email&#39; that combines &#39;emailhr&#39; and &#39;emailmin&#39; in minutes
+gss &lt;- gss %&gt;% 
+      mutate(emailhr=as.numeric(emailhr),
+             emailmin=as.numeric(emailmin),
+             email = emailmin + emailhr * 60)
+
+glimpse(gss)</code></pre>
+<pre><code>## Rows: 2,867
+## Columns: 8
+## $ emailmin &lt;dbl&gt; 0, 30, NA, 10, NA, 0, 0, NA, 0, NA, 0, NA, 0, NA, 30, NA, NA…
+## $ emailhr  &lt;dbl&gt; 12, 0, NA, 0, NA, 2, 40, NA, 0, NA, 2, NA, 10, NA, 0, NA, NA…
+## $ snapchat &lt;chr&gt; &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;NA&quot;, &quot;No&quot;…
+## $ instagrm &lt;chr&gt; &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;NA&quot;, &quot;No…
+## $ twitter  &lt;chr&gt; &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;No&quot;, …
+## $ sex      &lt;chr&gt; &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Female&quot;, &quot;Female&quot;, &quot;Female&quot;, &quot;Male&quot;…
+## $ degree   &lt;chr&gt; &quot;Bachelor&quot;, &quot;High school&quot;, &quot;Bachelor&quot;, &quot;High school&quot;, &quot;Gradu…
+## $ email    &lt;dbl&gt; 720, 30, NA, 10, NA, 120, 2400, NA, 0, NA, 120, NA, 600, NA,…</code></pre>
+<pre class="r"><code>#2.1 Visualizing the distribution of this new variable
+gss_filtered &lt;- gss %&gt;%
+                filter(!is.na(email))
+
+boxplot(gss_filtered$email,
+        main = &quot;Distribution of time spent on emails&quot;,
+        xlab = &quot;Time spent on emails (in minutes)&quot;,
+        col = &quot;orange&quot;,
+        border = &quot;brown&quot;,
+        horizontal = TRUE,
+        notch = TRUE)</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/read_gss_data2-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#2.2 Mean &amp; median
+
+gss %&gt;% 
+  filter(!is.na(email)) %&gt;% 
+  summarise(med_email = median(email),
+            mean_email = mean(email))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   med_email mean_email
+##       &lt;dbl&gt;      &lt;dbl&gt;
+## 1       120       417.</code></pre>
+<pre class="r"><code>#Since median is greater than mean then we may conclude that distribution is skewed to the right. As we can see, there are outliers in data that affect mean. So, since there are outliers in data, it is better to use median.
+
+
+#3 Using the `infer` package, calculate a 95% bootstrap confidence interval for the mean amount of time Americans spend on email weekly. Interpret this interval in context of the data, reporting its endpoints in “humanized” units (e.g. instead of 108 minutes, report 1 hr and 8 minutes). If you get a result that seems a bit odd, discuss why you think this might be the case.
+
+email &lt;- gss %&gt;% 
+         filter(!is.na(email)) %&gt;% 
+         specify(response=email) %&gt;% 
+         generate(reps=1000,type=&quot;bootstrap&quot;) %&gt;%
+         calculate(stat=&quot;mean&quot;)
+
+email_ci &lt;- email %&gt;%
+            get_confidence_interval(level = 0.95,type=&quot;percentile&quot;) %&gt;% 
+            mutate(lower_ci_hrs=lower_ci/60,
+                   mean_email_hr = mean(email$stat, na.rm = T)/60,
+                   upper_ci_hrs=upper_ci/60,
+                   lower_ci_mins=lower_ci,
+                   mean_email_min = mean(email$stat, na.rm = T),
+                   upper_ci_mins=upper_ci) </code></pre>
+<p>As we can see, the mean result 6 hours 55 min. It means that we are 95% confident that the true population mean lies between 6 hours 22 min and 7 hours 30 min. We believe that this result may be too large so we need to look in data and the approaches that were used to collect it. For instance, how it was measured: it is net time of a person that them spend in the e-mail or it’s just a tab that is opened the whole day.</p>
+<p>#4 Would you expect a 99% confidence interval to be wider or narrower than the interval you calculated above? Explain your reasoning.</p>
+<p>We expect a 99% confidence interval to be wider than a 95% confidence interval because to be more confident that the true population value falls within the interval we will need to allow more potential values within the interval. Thus, it must be wider.</p>
+</div>
+</div>
+<div id="trumps-approval-margins" class="section level1">
+<h1>Trump’s Approval Margins</h1>
+<p>As we saw in class, fivethirtyeight.com has detailed data on <a href="https://projects.fivethirtyeight.com/trump-approval-ratings">all polls that track the president’s approval</a></p>
+<pre class="r"><code># Import approval polls data
+approval_polllist &lt;- read_csv(here::here(&#39;data&#39;, &#39;approval_polllist.csv&#39;))
+
+# or directly off fivethirtyeight website
+# approval_polllist &lt;- read_csv(&#39;https://projects.fivethirtyeight.com/trump-approval-data/approval_polllist.csv&#39;) 
+
+glimpse(approval_polllist)</code></pre>
+<pre><code>## Rows: 15,619
+## Columns: 22
+## $ president           &lt;chr&gt; &quot;Donald Trump&quot;, &quot;Donald Trump&quot;, &quot;Donald Trump&quot;, &quot;…
+## $ subgroup            &lt;chr&gt; &quot;All polls&quot;, &quot;All polls&quot;, &quot;All polls&quot;, &quot;All polls…
+## $ modeldate           &lt;chr&gt; &quot;9/27/2020&quot;, &quot;9/27/2020&quot;, &quot;9/27/2020&quot;, &quot;9/27/2020…
+## $ startdate           &lt;chr&gt; &quot;1/20/2017&quot;, &quot;1/20/2017&quot;, &quot;1/20/2017&quot;, &quot;1/21/2017…
+## $ enddate             &lt;chr&gt; &quot;1/22/2017&quot;, &quot;1/22/2017&quot;, &quot;1/24/2017&quot;, &quot;1/23/2017…
+## $ pollster            &lt;chr&gt; &quot;Gallup&quot;, &quot;Morning Consult&quot;, &quot;Ipsos&quot;, &quot;Gallup&quot;, &quot;…
+## $ grade               &lt;chr&gt; &quot;B&quot;, &quot;B/C&quot;, &quot;B-&quot;, &quot;B&quot;, &quot;B-&quot;, &quot;C+&quot;, &quot;B+&quot;, &quot;B&quot;, &quot;C+…
+## $ samplesize          &lt;dbl&gt; 1500, 1992, 1632, 1500, 1651, 1500, 1190, 1500, 1…
+## $ population          &lt;chr&gt; &quot;a&quot;, &quot;rv&quot;, &quot;a&quot;, &quot;a&quot;, &quot;a&quot;, &quot;lv&quot;, &quot;rv&quot;, &quot;a&quot;, &quot;lv&quot;, …
+## $ weight              &lt;dbl&gt; 0.262, 0.680, 0.153, 0.243, 0.142, 0.200, 1.514, …
+## $ influence           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+## $ approve             &lt;dbl&gt; 45.0, 46.0, 42.1, 45.0, 42.3, 57.0, 36.0, 46.0, 5…
+## $ disapprove          &lt;dbl&gt; 45.0, 37.0, 45.2, 46.0, 45.8, 43.0, 44.0, 45.0, 4…
+## $ adjusted_approve    &lt;dbl&gt; 45.7, 45.3, 43.2, 45.7, 43.4, 51.5, 37.6, 46.7, 5…
+## $ adjusted_disapprove &lt;dbl&gt; 43.6, 38.3, 43.9, 44.6, 44.5, 44.5, 42.8, 43.6, 4…
+## $ multiversions       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+## $ tracking            &lt;lgl&gt; TRUE, NA, TRUE, TRUE, TRUE, TRUE, NA, TRUE, TRUE,…
+## $ url                 &lt;chr&gt; &quot;http://www.gallup.com/poll/201617/gallup-daily-t…
+## $ poll_id             &lt;dbl&gt; 49253, 49249, 49426, 49262, 49425, 49266, 49260, …
+## $ question_id         &lt;dbl&gt; 77265, 77261, 77599, 77274, 77598, 77278, 77272, …
+## $ createddate         &lt;chr&gt; &quot;1/23/2017&quot;, &quot;1/23/2017&quot;, &quot;3/1/2017&quot;, &quot;1/24/2017&quot;…
+## $ timestamp           &lt;chr&gt; &quot;00:45:20 27 Sep 2020&quot;, &quot;00:45:20 27 Sep 2020&quot;, &quot;…</code></pre>
+<pre class="r"><code># Use `lubridate` to fix dates, as they are given as characters.
+apV1 &lt;- approval_polllist %&gt;% 
+  mutate(mdate = mdy(modeldate),edate = mdy(enddate),state = mdy(startdate))</code></pre>
+<div id="create-a-plot" class="section level2">
+<h2>Create a plot</h2>
+<p>What I would like you to do is to calculate the average net approval rate (approve- disapprove) for each week since he got into office. I want you plot the net approval, along with its 95% confidence interval. There are various dates given for each poll, please use <code>enddate</code>, i.e., the date the poll ended.</p>
+<pre class="r"><code>apV2 &lt;- apV1 %&gt;% mutate(napr = approve - disapprove,week = week(edate),year = year(edate))
+library(Rmisc)
+avgnapr &lt;- apV2 %&gt;% summarySE(&quot;napr&quot;,&quot;week&quot;)
+ggplot(avgnapr,aes(x=week,y=napr))+
+  geom_line(color = &quot;indianred&quot;)+
+  geom_point(color = &quot;indianred&quot;)+
+  geom_ribbon(aes(ymin=napr-ci,ymax=napr+ci),color = &quot;indianred&quot;, fill = &quot;indianred&quot;, alpha = 0.3)+
+  scale_x_continuous(breaks = seq(1,53,2))+
+  labs(x = &quot;Week of the Year&quot;, 
+     y = &quot;Average Net Approval (%)&quot;, 
+     title = &quot;Estimated Net Approval (approve-disapprove) for Donald Trump&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/unnamed-chunk-2-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>You can facet by year, and add an orange line at zero. Your plot should look like this:</p>
+<pre class="r"><code>avgnapr1 &lt;- apV2 %&gt;% summarySE(&quot;napr&quot;,c(&quot;week&quot;,&quot;year&quot;))
+ggplot(avgnapr1,aes(x=week,y=napr, color = year)) +
+  geom_line()+
+  geom_point()+
+  geom_ribbon(aes(ymin=napr-ci,ymax=napr+ci, color = year), alpha = 0.3) +
+  facet_wrap(~year)+
+  geom_abline(slope=0,intercept=0,color=&quot;orange&quot;) + 
+  labs(x = &quot;Week of the Year&quot;, 
+     y = &quot;Average Net Approval (%)&quot;, 
+     title = &quot;Estimated Net Approval (approve-disapprove) for Donald Trump&quot;, subtitle = &quot;Weekly Average of all polls&quot;) +
+  theme_bw() +
+  theme(legend.position = &#39;none&#39;) </code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/test-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p><img src="images/trump_approval_margin.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>
+<div id="compare-confidence-intervals" class="section level2">
+<h2>Compare Confidence Intervals</h2>
+<p>Compare the confidence intervals for <code>week 15</code> (6-12 April 2020) and <code>week 34</code> (17-23 August 2020). Can you explain what’s going on? One paragraph would be enough.</p>
+<pre class="r"><code>attach(avgnapr1)
+avgnapr1[week==15 &amp; year==2020,&quot;ci&quot;]</code></pre>
+<pre><code>## [1] 0.671</code></pre>
+<pre class="r"><code>avgnapr1[week==34 &amp; year==2020,&quot;ci&quot;]</code></pre>
+<pre><code>## [1] 1.55</code></pre>
+<pre class="r"><code>detach(avgnapr1)                                            </code></pre>
+<p>My major finding is that the CI for week 34 is much wider than that for week 15, indicating that the variability of voting results in week 34 is larger than that in 15. This may be attributed to the fact some major events took place near that date and citizens’ opinions about the president tend to diverge accordingly.</p>
+</div>
+</div>
+<div id="gapminder-revisited" class="section level1">
+<h1>Gapminder revisited</h1>
+<p>Recall the <code>gapminder</code> data frame from the gapminder package. That data frame contains just six columns from the larger <a href="https://www.gapminder.org/data/">data in Gapminder World</a>. In this part, you will join a few dataframes with more data than the ‘gapminder’ package. Specifically, you will look at data on</p>
+<ul>
+<li>Life expectancy at birth (life_expectancy_years.csv)</li>
+<li>GDP per capita in constant 2010 US$ (<a href="https://data.worldbank.org/indicator/NY.GDP.PCAP.KD" class="uri">https://data.worldbank.org/indicator/NY.GDP.PCAP.KD</a>)</li>
+<li>Female fertility: The number of babies per woman (<a href="https://data.worldbank.org/indicator/SP.DYN.TFRT.IN" class="uri">https://data.worldbank.org/indicator/SP.DYN.TFRT.IN</a>)</li>
+<li>Primary school enrollment as % of children attending primary school (<a href="https://data.worldbank.org/indicator/SE.PRM.NENR" class="uri">https://data.worldbank.org/indicator/SE.PRM.NENR</a>)</li>
+<li>Mortality rate, for under 5, per 1000 live births (<a href="https://data.worldbank.org/indicator/SH.DYN.MORT" class="uri">https://data.worldbank.org/indicator/SH.DYN.MORT</a>)</li>
+<li>HIV prevalence (adults_with_hiv_percent_age_15_49.csv): The estimated number of people living with HIV per 100 population of age group 15-49.</li>
+</ul>
+<p>You must use the <code>wbstats</code> package to download data from the World Bank. The relevant World Bank indicators are <code>SP.DYN.TFRT.IN</code>, <code>SE.PRM.NENR</code>, <code>NY.GDP.PCAP.KD</code>, and <code>SH.DYN.MORT</code></p>
+<pre class="r"><code># load gapminder HIV data
+hiv &lt;- read_csv(here::here(&quot;data&quot;,&quot;adults_with_hiv_percent_age_15_49.csv&quot;))
+life_expectancy &lt;- read_csv(here::here(&quot;data&quot;,&quot;life_expectancy_years.csv&quot;))
+
+# get World bank data using wbstats
+indicators &lt;- c(&quot;SP.DYN.TFRT.IN&quot;,&quot;SE.PRM.NENR&quot;, &quot;SH.DYN.MORT&quot;, &quot;NY.GDP.PCAP.KD&quot;)
+
+
+library(wbstats)
+
+worldbank_data &lt;- wb_data(country=&quot;countries_only&quot;, #countries only- no aggregates like Latin America, Europe, etc.
+                          indicator = indicators, 
+                          start_date = 1960, 
+                          end_date = 2016)
+
+# get a dataframe of information regarding countries, indicators, sources, regions, indicator topics, lending types, income levels,  from the World Bank API 
+
+countries &lt;-  wbstats::wb_cachelist$countries</code></pre>
+<p>You have to join the 3 dataframes (life_expectancy, worldbank_data, and HIV) into one. You may need to tidy your data first and then perform <a href="http://r4ds.had.co.nz/relational-data.html">join operations</a>. Think about what type makes the most sense <strong>and explain why you chose it</strong>.</p>
+<pre class="r"><code>library(countrycode)
+
+life_exp_long &lt;- pivot_longer(life_expectancy,cols = 2:302,names_to = &quot;Year&quot;, values_to = &quot;Life_Expectancy&quot;)
+
+hiv_long &lt;- pivot_longer(hiv, cols = 2:34, names_to = &quot;Year&quot; , values_to = &quot;Infection_100_People&quot;)
+
+hiv_long &lt;- hiv_long %&gt;% 
+            mutate(Infection_Rate = Infection_100_People/100)
+
+worldbank_new &lt;- worldbank_data %&gt;%
+                 dplyr::rename(Year = date, 
+                       GDP_per_Capita = NY.GDP.PCAP.KD, 
+                       School_Enrollment = SE.PRM.NENR, 
+                       Mortality_Rate = SH.DYN.MORT, 
+                       Fertility_Rate = SP.DYN.TFRT.IN)
+
+exp_hiv &lt;- left_join(hiv_long,life_exp_long,by = c(&quot;country&quot;,&quot;Year&quot;))
+exp_hiv$Year &lt;- as.numeric(exp_hiv$Year)
+
+exp_hiv_worldbank &lt;- left_join(worldbank_new, exp_hiv,by = c(&quot;country&quot;,&quot;Year&quot;), na.rm = TRUE)
+exp_hiv_worldbank$region = countrycode(exp_hiv_worldbank$iso3c,origin = &quot;iso3c&quot;, destination = &quot;region&quot;)
+
+exp_hiv_worldbank</code></pre>
+<pre><code>## # A tibble: 12,369 x 12
+##    iso2c iso3c country  Year GDP_per_Capita School_Enrollme… Mortality_Rate
+##    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;          &lt;dbl&gt;            &lt;dbl&gt;          &lt;dbl&gt;
+##  1 AW    ABW   Aruba    1960             NA               NA             NA
+##  2 AW    ABW   Aruba    1961             NA               NA             NA
+##  3 AW    ABW   Aruba    1962             NA               NA             NA
+##  4 AW    ABW   Aruba    1963             NA               NA             NA
+##  5 AW    ABW   Aruba    1964             NA               NA             NA
+##  6 AW    ABW   Aruba    1965             NA               NA             NA
+##  7 AW    ABW   Aruba    1966             NA               NA             NA
+##  8 AW    ABW   Aruba    1967             NA               NA             NA
+##  9 AW    ABW   Aruba    1968             NA               NA             NA
+## 10 AW    ABW   Aruba    1969             NA               NA             NA
+## # … with 12,359 more rows, and 5 more variables: Fertility_Rate &lt;dbl&gt;,
+## #   Infection_100_People &lt;dbl&gt;, Infection_Rate &lt;dbl&gt;, Life_Expectancy &lt;dbl&gt;,
+## #   region &lt;chr&gt;</code></pre>
+<p>We first performed a left-join to combine the tables life_exp_long and hiv_long because they have common variables “country” and “Year”. We then performed another left-join to join the newly formed table and the worldbank_new dataframe. Because worldbank_new has more columns than the exp_hiv table, we need to include all the columns in the merged table while combining by the common variables “Year” and “country”.</p>
+<ol style="list-style-type: decimal">
+<li>What is the relationship between HIV prevalence and life expectancy? Generate a scatterplot with a smoothing line to report your results. You may find faceting useful</li>
+</ol>
+<pre class="r"><code>exp_hiv_worldbank %&gt;% 
+  filter(!is.na(Life_Expectancy)) %&gt;% 
+  ggplot(aes(x = Infection_Rate,
+             y = Life_Expectancy))+
+  geom_point(na.rm = TRUE, col = &quot;black&quot;, cex = 0.5, alpha = 0.5)+
+  facet_wrap(~region, ncol=3,nrow=3, scales = &quot;free_x&quot;)+
+  geom_smooth(method = &quot;lm&quot;, na.rm = TRUE )+
+  theme_bw()+
+  labs(title = &quot;Life Expectancy Likely Decreases with HIV Prevalence across Regions&quot;, 
+       subtitle = &quot;Sub-Saharan Africa and Latin America exhihit high HIV Infections&quot;, 
+       x = &quot;Infection Rate&quot;, 
+       y = &quot;Life Expectancy&quot;)</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/hiv_life_exp-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>The life expectancy and HIV prevalence have negative relationships in all regions around the globe. However, the relationship is most prominent in Sub-Saharan Africa and it has much higher HIV infection rates than other regions.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>What is the relationship between fertility rate and GDP per capita? Generate a scatterplot with a smoothing line to report your results. You may find facetting by region useful</li>
+</ol>
+<pre class="r"><code>exp_hiv_worldbank %&gt;% 
+  filter(!is.na(region)) %&gt;% 
+  ggplot(aes(x= Fertility_Rate,
+             y = GDP_per_Capita))+
+  geom_point(na.rm = TRUE, col = &quot;black&quot;, cex = 0.5, alpha = 0.5)+
+  facet_wrap(~region, ncol=3,nrow=3, scales = &quot;free_y&quot;)+
+  geom_smooth(method = &quot;auto&quot;, na.rm = TRUE )+
+  theme_gray()+
+  labs(title = &quot;GDP per Capita likely Decreases with Fertility Rates across Regions&quot;, 
+       subtitle = &quot;GDP per Capita have large variations within regions, however&quot;, 
+       x = &quot;Fertility Rate&quot;, 
+       y = &quot;GDP per Capita&quot;)</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/fertility_GDP_per_capita-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>We can observe from the graphs that GDP per Capita generally decreases with fertility rate, with a few exceptions in Europe &amp; Central Asia, where in the lower end of fertility rates tend to contribute to a higher GDP per Capita. This is likely due to the fact that many European countries have problems with aging societies, so their GDP per capita might increase with higher fertility rates to boost economic production. The overall negative relationship could be explained by the fact that with a fixed amount of GDP, GDP per capita and population are inversely related, so countries with low fertility rates tend to have less population and therefore higher GDP per Capita.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Which regions have the most observations with missing HIV data? Generate a bar chart (<code>geom_col()</code>), in descending order.</li>
+</ol>
+<pre class="r"><code>Missing_Values &lt;- exp_hiv_worldbank %&gt;%
+                  group_by(region)%&gt;%
+                  dplyr::summarise(Number_of_Missing_Values = (sum(is.na(Infection_Rate))))
+
+Missing_Values %&gt;% 
+  filter(!is.na(region)) %&gt;% 
+  ggplot(aes(x=reorder(region,-Number_of_Missing_Values), 
+             y=Number_of_Missing_Values))+
+  geom_col()+
+  labs(x=&quot;Region&quot;,
+       y=&quot;Number of Missing Values&quot;,
+       title = &quot;Europe and Central Asia have the Highest Number of Missing HIV Data&quot;, 
+       subtitle = &quot;Missing HIV Observations by Regions&quot;) +
+  theme(axis.text.x = element_text(angle=20))</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/missing_hiv-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>The Europe and Central Asia region has the highest amount of missing data.</p>
+<ol start="4" style="list-style-type: decimal">
+<li>How has mortality rate for under 5 changed by region? In each region, find the top 5 countries that have seen the greatest improvement, as well as those 5 countries where mortality rates have had the least improvement or even deterioration.</li>
+</ol>
+<pre class="r"><code>exp_hiv_worldbank %&gt;% 
+  filter(!is.na(region)) %&gt;% 
+  ggplot(aes(x= Year, 
+             y = Mortality_Rate))+
+  geom_point(na.rm = TRUE, col = &quot;black&quot;, cex = 0.5, alpha = 0.5)+
+  facet_wrap(~region, ncol=3,nrow=3, scales = &quot;free_y&quot;)+
+  geom_smooth(method = &quot;auto&quot;, na.rm = TRUE )+
+  theme_gray()+
+  labs(title = &quot;Mortality Decreased Over the Years in All Regions&quot;, 
+       subtitle = &quot;North America sees the fastest improvement&quot;, 
+       x = &quot;Year&quot;, 
+       y = &quot;Mortality Rate&quot;)</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/mortality_rate_region-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Mortality_1960 &lt;- exp_hiv_worldbank %&gt;%
+  filter(Year == &quot;1960&quot;)%&gt;%
+  select(Year,country,region,Mortality_Rate)
+Mortality_2016 &lt;- exp_hiv_worldbank %&gt;%
+  filter(Year == &quot;2016&quot;)%&gt;%
+  select(Year,country,region,Mortality_Rate)
+
+Mortality_change &lt;- left_join(Mortality_1960, Mortality_2016, by = c(&quot;country&quot;,&quot;region&quot;)) %&gt;%
+  mutate (Growth_Rate = (Mortality_Rate.y - Mortality_Rate.x)/Mortality_Rate.x)
+
+Top_5 &lt;- Mortality_change%&gt;%
+  group_by(region)%&gt;%
+  top_n(n=5, wt = -Growth_Rate)%&gt;%
+  arrange(region,Growth_Rate)
+ 
+Bottom_5 &lt;- Mortality_change%&gt;%
+  group_by(region)%&gt;%
+  top_n(n=5, wt = Growth_Rate)%&gt;%
+  arrange(region,Growth_Rate)</code></pre>
+<p>The mortality rate has improved(decreased) across all regions from 1960 to 2016. North America sees the greatest improvement, although its mortality rate was very low in 1960 compared to other regions.</p>
+<ol start="5" style="list-style-type: decimal">
+<li>Is there a relationship between primary school enrollment and fertility rate?</li>
+</ol>
+<pre class="r"><code>  exp_hiv_worldbank %&gt;% 
+  filter(!is.na(region)) %&gt;% 
+  ggplot(aes(x= School_Enrollment, 
+             y = Fertility_Rate))+
+  geom_point(na.rm = TRUE, col = &quot;black&quot;, cex = 0.5, alpha = 0.5)+
+  facet_wrap(~region, ncol=3,nrow=3, scales = &quot;free_x&quot;)+
+  geom_smooth(method = &quot;lm&quot;, na.rm = TRUE )+
+  theme_gray()+
+  labs(title = &quot;There is a Relatively Negative Relationship Between School Enrollment and Fertility Rate&quot;, 
+       subtitle = &quot;The Relationship is Less Prominent in Europe and Central Asia&quot;, 
+       x = &quot;School Enrollment&quot;, 
+       y = &quot;Fertility Rate&quot;)</code></pre>
+<p><img src="/blogs/homework2/homework2_files/figure-html/school_fertility-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>We can observe from the graphs that fertility rate and school enrollment are somewhat negatively related. However, it is less prominent in the Europe and Central Asia region as well as North America, possibly due to the fact that these regions consists of many developed countries where fertility rates are generally low and people can better afford education for children. For the rest of the regions, the negative relationship can be explained by the financial burden associated with more children, so a smaller proportion of them can attend primary schools.</p>
+</div>
+<div id="challenge-1-cdc-covid-19-public-use-data" class="section level1">
+<h1>Challenge 1: CDC COVID-19 Public Use Data</h1>
+<p>Let us revisit the <a href="https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf">CDC Covid-19 Case Surveillance Data</a>. There are well over 3 million entries of individual, de-identified patient data. Since this is a large file, I suggest you use <code>vroom</code> to load it and you keep <code>cache=TRUE</code> in the chunk options.</p>
+<pre class="r"><code># file contains 11 variables and 3.66m rows and is well over 380Mb. 
+# It will take time to download
+
+# URL link to CDC to download data
+url &lt;- &quot;https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD&quot;
+
+covid_data &lt;- vroom::vroom(url)%&gt;% # If vroom::vroom(url) doesn&#39;t work, use read_csv(url)
+  clean_names()</code></pre>
+<p>Given the data we have, I would like you to produce two graphs that show death % rate:</p>
+<ol style="list-style-type: decimal">
+<li>by age group, sex, and whether the patient had co-morbidities or not</li>
+<li>by age group, sex, and whether the patient was admited to Intensive Care Unit (ICU) or not.</li>
+</ol>
+<p><img src="/blogs/homework2/homework2_files/figure-html/covid_challenge-1.png" width="100%" style="display: block; margin: auto;" /><img src="/blogs/homework2/homework2_files/figure-html/covid_challenge-2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>Besides the graphs, make sure your code is easy to read and understand– imagine if you revisit this six months from now. you should be able to follow what you were doing!</p>
+</div>
+<div id="challenge-2-excess-rentals-in-tfl-bike-sharing" class="section level1">
+<h1>Challenge 2: Excess rentals in TfL bike sharing</h1>
+<p>Recall the TfL data on how many bikes were hired every single day. We can get the latest data by running the following</p>
+<p>The second one looks at percentage changes from the expected level of weekly rentals. The two grey shaded rectangles correspond to the second (weeks 14-26) and fourth (weeks 40-52) quarters.</p>
+<p>For both of these graphs, you have to calculate the expected number of rentals per week or month between 2015-2019 and then, see how each week/month of 2020 compares to the expected rentals. Think of the calculation <code>excess_rentals = actual_rentals - expected_rentals</code>.</p>
+<p>Should you use the mean or the median to calculate your expected rentals? Why?</p>
+<p>In creating your plots, you may find these links useful:</p>
+<ul>
+<li><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="uri">https://ggplot2.tidyverse.org/reference/geom_ribbon.html</a></li>
+<li><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="uri">https://ggplot2.tidyverse.org/reference/geom_tile.html</a></li>
+<li><a href="https://ggplot2.tidyverse.org/reference/geom_rug.html" class="uri">https://ggplot2.tidyverse.org/reference/geom_rug.html</a></li>
+</ul>
+</div>
+<div id="deliverables" class="section level1">
+<h1>Deliverables</h1>
+<p>As usual, there is a lot of explanatory text, comments, etc. You do not need these, so delete them and produce a stand-alone document that you could share with someone. Knit the edited and completed R Markdown file as an HTML document (use the “Knit” button at the top of the script editor window) and upload it to Canvas.</p>
+</div>
+<div id="details" class="section level1">
+<h1>Details</h1>
+<ul>
+<li>Who did you collaborate with: TYPE NAMES HERE</li>
+<li>Approximately how much time did you spend on this problem set: ANSWER HERE</li>
+<li>What, if anything, gave you the most trouble: ANSWER HERE</li>
+</ul>
+<p><strong>Please seek out help when you need it,</strong> and remember the <a href="https://mam2021.netlify.app/syllabus/#the-15-minute-rule" target="_blank">15-minute rule</a>. You know enough R (and have enough examples of code from class and your readings) to be able to do this. If you get stuck, ask for help from others, post a question on Slack– and remember that I am here to help too!</p>
+<blockquote>
+<p>As a true test to yourself, do you understand the code you submitted and are you able to explain it to someone else?</p>
+</blockquote>
+</div>
+<div id="rubric" class="section level1">
+<h1>Rubric</h1>
+<p>Check minus (1/5): Displays minimal effort. Doesn’t complete all components. Code is poorly written and not documented. Uses the same type of plot for each graph, or doesn’t use plots appropriate for the variables being analyzed.</p>
+<p>Check (3/5): Solid effort. Hits all the elements. No clear mistakes. Easy to follow (both the code and the output).</p>
+<p>Check plus (5/5): Finished all components of the assignment correctly and addressed both challenges. Code is well-documented (both self-documented and with additional comments as necessary). Used tidyverse, instead of base R. Graphs and tables are properly labelled. Analysis is clear and easy to follow, either because graphs are labeled clearly or you’ve written additional text to describe how you interpret the output.</p>
+</div>
