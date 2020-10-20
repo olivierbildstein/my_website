@@ -1,3 +1,8 @@
+---
+title: "Homework 3"
+output: html_document
+---
+
 
 
 <div id="youth-risk-behavior-surveillance" class="section level1">
@@ -287,7 +292,7 @@ ggplot(yrbss, aes(x=weight))+
        y=&quot;Occurances&quot;)+
    theme_bw()+ #white theme
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/eda_on_weight-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/eda_on_weight-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#histogram for male weight
 ggplot(weight_m, aes(x=weight))+
   #geom_density()+
@@ -297,7 +302,7 @@ ggplot(weight_m, aes(x=weight))+
        y=&quot;Occurances&quot;)+
    theme_bw()+
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/eda_on_weight-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/eda_on_weight-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#histo for female weight
 ggplot(weight_f, aes(x=weight))+
   #geom_density()+
@@ -307,7 +312,7 @@ ggplot(weight_f, aes(x=weight))+
        y=&quot;Occurances&quot;)+
    theme_bw()+
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/eda_on_weight-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/eda_on_weight-3.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#hist for weight after ethnicity 
 #Remove NA
 mean_weight &lt;- yrbss %&gt;% 
@@ -353,7 +358,7 @@ glimpse(yrbss_wide)</code></pre>
   scale_x_continuous(breaks=c(0,50,60,70,80,90,100,120,140,160,200))+
   #theme(strip.text.y = element_text(size=8)) +
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/eda_on_weight2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/eda_on_weight2-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Next, consider the possible relationship between a high schooler’s weight and their physical activity. Plotting the data is a useful first step because it helps us quickly visualize trends, identify strong associations, and develop research questions.</p>
 <p>Let’s create a new variable <code>physical_3plus</code>, which will be <code>yes</code> if they are physically active for at least 3 days a week, and <code>no</code> otherwise.</p>
 <pre class="r"><code>yrbss &lt;- yrbss %&gt;% 
@@ -406,7 +411,7 @@ ggplot(subset(yrbss1, !is.na(physical_3plus)), aes(x=physical_3plus, y=weight, g
   theme_minimal()+
   facet_grid(race~., margins=T, scales=&quot;free_y&quot;, switch=&quot;y&quot;)+
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/boxplot-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/boxplot-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#Is there a relationship between physical_3plus and weight after Gender?
 ggplot(subset(yrbss1, !is.na(physical_3plus)), aes(x=physical_3plus, y=weight, group=physical_3plus))+
   geom_boxplot(aes(fill=physical_3plus))+
@@ -417,7 +422,7 @@ ggplot(subset(yrbss1, !is.na(physical_3plus)), aes(x=physical_3plus, y=weight, g
   theme_minimal()+
   facet_grid(gender~., margins=T, scales=&quot;free_y&quot;, switch=&quot;y&quot;)+
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/boxplot-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/boxplot-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#Is there a relationship between physical_3plus and weight after Race and Gender?
 ggplot(subset(yrbss1, !is.na(physical_3plus)), aes(x=physical_3plus, y=weight, group=physical_3plus))+
   geom_boxplot(aes(fill=physical_3plus))+
@@ -428,7 +433,7 @@ ggplot(subset(yrbss1, !is.na(physical_3plus)), aes(x=physical_3plus, y=weight, g
   theme_minimal()+
   facet_grid(race~gender, margins=T, scales=&quot;free_y&quot;, switch=&quot;y&quot;)+
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/boxplot-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/boxplot-3.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#Relationship between physical_3plus and weight?
 ggplot(subset(yrbss1, !is.na(physical_3plus)), aes(x=physical_3plus, y=weight, group=physical_3plus))+
   geom_boxplot(aes(fill=physical_3plus))+
@@ -438,7 +443,7 @@ ggplot(subset(yrbss1, !is.na(physical_3plus)), aes(x=physical_3plus, y=weight, g
   scale_y_continuous(breaks=c(50,60,70,80,90,100,150))+
   theme_minimal()+
   NULL</code></pre>
-<p><img src="homework3_files/figure-html/boxplot-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/boxplot-4.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="confidence-interval" class="section level2">
 <h2>Confidence Interval</h2>
@@ -509,7 +514,7 @@ null_dist &lt;- yrbss %&gt;%
        x=&quot;Values of Null Disribution&quot;,
        y=&quot;Occurences&quot;)+
   theme_minimal()</code></pre>
-<p><img src="homework3_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Now that the test is initialized and the null distribution formed, we can visualise to see how many of these null permutations have a difference of at least <code>obs_stat</code> of 1.77?</p>
 <p>We can also calculate the p-value for your hypothesis test using the function <code>infer::get_p_value()</code>.</p>
 <pre class="r"><code>null_dist %&gt;% visualize() +
@@ -520,7 +525,7 @@ null_dist &lt;- yrbss %&gt;%
         plot.subtitle = element_text(size = 10),  
         axis.text = element_text(size = 10), 
         axis.title = element_text(size=10))</code></pre>
-<p><img src="homework3_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>null_dist %&gt;%
   get_p_value(obs_stat = obs_diff, direction = &quot;two_sided&quot;)</code></pre>
 <pre><code>## # A tibble: 1 x 1
@@ -598,7 +603,7 @@ ggplot(Spielberg_Burton,
         axis.text = element_text(size = 8), 
         axis.title.x = element_text(size=8),
         legend.position = &quot;none&quot;)</code></pre>
-<p><img src="homework3_files/figure-html/reproduction_directors-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/reproduction_directors-1.png" width="672" style="display: block; margin: auto;" /></p>
 <blockquote>
 <p>Null hypothesis: Movies of Spielberg and Burton have the same mean IMDB ratings. Alternative hypothesis: Movies of Spielberg and Burton have different mean IMDB ratings. After conducting the t.test command, the t-statistic is 3 and corresponding p-value is 0.01, which is smaller than 0.025. The 95% confidence interval of the mean difference is between 0.16 and 1.13. Therefore, we reject the null and can conclude that the mean IMDB ratings of movies directed by Steven Spielberg and Tim Burton are not equal.</p>
 </blockquote>
@@ -659,7 +664,7 @@ null_ratings %&gt;% visualize() +
        #     colour = &quot;lightyellow&quot;, 
         #    alpha=0.05)+
 NULL</code></pre>
-<p><img src="homework3_files/figure-html/difference_ratings-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/difference_ratings-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="omega-group-plc--pay-discrimination" class="section level1">
 <h1>Omega Group plc- Pay Discrimination</h1>
@@ -796,7 +801,7 @@ salary_gender &lt;- omega %&gt;%
             color=&quot;Gender trend line&quot;,
             main=&quot;Enhanced Scatter Plot&quot;) # Main title
 salary_gender</code></pre>
-<p><img src="homework3_files/figure-html/salary_exp_scatter-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/salary_exp_scatter-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="check-correlations-between-the-data" class="section level2">
 <h2>Check correlations between the data</h2>
@@ -805,7 +810,7 @@ salary_gender</code></pre>
   select(gender, experience, salary) %&gt;% #order variables they will appear in ggpairs()
   ggpairs(aes(colour=gender, alpha = 0.3))+
   theme_bw()</code></pre>
-<p><img src="homework3_files/figure-html/ggpairs-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/ggpairs-1.png" width="672" style="display: block; margin: auto;" /></p>
 <blockquote>
 <p>Look at the salary vs experience scatterplot. What can you infer from this plot? Explain in a couple of sentences</p>
 </blockquote>
@@ -958,7 +963,7 @@ ggplot(yield_curve, aes(x = date, y = price, color = maturity)) +
     theme(legend.position = &quot;none&quot;, plot.title = element_text(face = &quot;bold&quot;)) +
 #Setting plot and axis titiles
     labs(y = &#39;%&#39;, title = &#39;Yields on U.S. Treasury rates since 1960&#39;, caption = &quot;Source: St. Louis Federal Reserve Economic Database (FRED)&quot;, x = &quot;&quot;) </code></pre>
-<p><img src="homework3_files/figure-html/yield_curve_1_plot_-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/yield_curve_1_plot_-1.png" width="768" style="display: block; margin: auto;" /></p>
 </div>
 <div id="monthly-yields-on-us-rates-by-duration-since-1999-on-a-year-by-year-basis" class="section level3">
 <h3>Monthly yields on US rates by duration since 1999 on a year-by-year basis</h3>
@@ -982,7 +987,7 @@ ggplot(yield_curve_with_years, aes(x = maturity, y = price, color = year, group 
     labs(y = &#39;Yield (%)&#39;, title = &#39;US Yield Curve&#39;, caption = &quot;Source: St. Louis Federal Reserve Economic Database (FRED)&quot;, x = &quot;Maturity&quot;) +
 #Bolding plot title
     theme(plot.title = element_text(face = &quot;bold&quot;))</code></pre>
-<p><img src="homework3_files/figure-html/yield_curve_2_plot2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/yield_curve_2_plot2-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="month-and-10-year-yields-since-1999" class="section level3">
 <h3>3-month and 10-year yields since 1999</h3>
@@ -1004,7 +1009,7 @@ ggplot(yield_curve_3m_10m, aes(x = date, y = price, color = var)) +
          caption = &quot;Source: St. Louis Federal Reserve Economic Database (FRED)&quot;, x = &quot;&quot;) +
 #Setting x-axis labels to be in 5 year increments
     scale_x_date(date_breaks=&quot;5 years&quot;,labels=date_format(&quot;%Y&quot;), limits = c(as.Date(&quot;1999-01-01&quot;),NA))</code></pre>
-<p><img src="homework3_files/figure-html/yield_curve_3_plot-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/yield_curve_3_plot-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <p>According to <a href="https://en.wikipedia.org/wiki/List_of_recessions_in_the_United_States">Wikipedia’s list of recession in the United States</a>, since 1999 there have been two recession in the US: between Mar 2001–Nov 2001 and between Dec 2007–June 2009. Does the yield curve seem to flatten before these recessions? Can a yield curve flattening really mean a recession is coming in the US? Since 1999, when did short-term (3 months) yield more than longer term (10 years) debt?</p>
 <p>Besides calculating the spread (10year - 3months), there are a few things we need to do to produce our final plot</p>
 <ol style="list-style-type: decimal">
@@ -1076,7 +1081,7 @@ ggplot(yield_curve_final, aes(x=date, y=difference)) +
 #Plotting graph ribbons
   geom_ribbon(aes(ymin = difference, ymax = pmin(difference, 0)), fill= &quot;steelblue2&quot;, alpha=0.5) +
   geom_ribbon(aes(ymin = 0, ymax = pmin(difference, 0)),fill = &quot;red&quot;, alpha=0.5)</code></pre>
-<p><img src="homework3_files/figure-html/yield_curve_challenge_plot-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/yield_curve_challenge_plot-1.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 </div>
@@ -1143,7 +1148,7 @@ ggplot(gdp_data_filtered,
        colour = &quot;Components of GDP&quot;) + #change the legend name
   theme(plot.title = element_text(face = &quot;bold&quot;), #make title bold
         panel.grid.minor = element_blank()) #get rid of minor lines in the background</code></pre>
-<p><img src="homework3_files/figure-html/gdp1-2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/gdp1-2.png" width="100%" style="display: block; margin: auto;" /></p>
 <p>Secondly, recall that GDP is the sum of Household Expenditure (Consumption <em>C</em>), Gross Capital Formation (business investment <em>I</em>), Government Expenditure (G) and Net Exports (exports - imports). Even though there is an indicator <code>Gross Domestic Product (GDP)</code> in your dataframe, I would like you to calculate it given its components discussed above.</p>
 <blockquote>
 <p>What is the % difference between what you calculated as GDP and the GDP figure included in the dataframe?</p>
@@ -1173,7 +1178,7 @@ labs(x = &quot;Country&quot;,
      y = &quot;Absolute mean difference&quot;, 
      title = &quot;Yemen has problems with calculating GDP&quot;,
      subtitle = &quot;Top 25 countries that have the highest mean absolute difference \n between calculated GDP and GDP figure &quot;)</code></pre>
-<p><img src="homework3_files/figure-html/perc_diff-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/perc_diff-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>#average mean by all countries
 mean(abs(gdp_percentage_diff$mean_diff))</code></pre>
 <pre><code>## [1] 3.73</code></pre>
@@ -1209,7 +1214,7 @@ ggplot(gdp_data_filtered2,
        y = &quot;proportion&quot;,
        colour = &quot;&quot;) + #change the legend name
   theme(panel.grid.minor = element_blank()) #get rid of minor lines in the background</code></pre>
-<p><img src="homework3_files/figure-html/gdp2-2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/gdp2-2.png" width="100%" style="display: block; margin: auto;" /></p>
 <blockquote>
 <p>What is this last chart telling you? Can you explain in a couple of paragraphs the different dynamic among these three countries?</p>
 </blockquote>
@@ -1304,7 +1309,7 @@ return(grid.arrange(gdp_value, gdp_prop, nrow = 2))
 
 country_list &lt;- c(&quot;Russian Federation&quot;, &quot;France&quot;, &quot;Greece&quot;, &quot;Germany&quot;)
 compare_countries_by_gdp(UN_GDP_data, country_list)</code></pre>
-<p><img src="homework3_files/figure-html/gdp_general-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/homework3/homework3_files/figure-html/gdp_general-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># As an overall, we would like to thank you for an opportunity to learn and improve our knowledge in R. 
 # Tasks were really challenging (at some point of time we wish it was not SO challenging) 
 # and interesting to learn. Thank you!</code></pre>
