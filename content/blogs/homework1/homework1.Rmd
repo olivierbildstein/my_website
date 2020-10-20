@@ -59,7 +59,7 @@ library(dplyr)
 data(drinks)
 
 # download data directly
- alcohol_direct <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv")
+alcohol_direct <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv")
 
 ```
 
@@ -753,7 +753,7 @@ The purpose of this exercise is to make a publication-ready plot using your `dpl
 
 ```{r challenge1, echo=FALSE, out.width="90%"}
 
-CDC_Males <- read.csv("~/Desktop/LBS/Data Analytics for Finance/session2-workshop1/data/CDC_Males.csv")
+CDC_Males <- read.csv(here::here("data", "CDC_Males.csv"))
 
 ```
 

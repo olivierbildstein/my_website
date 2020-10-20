@@ -32,8 +32,8 @@ disqusShortname = "olivierbildstein"
 
   # 404 error customization
   [params.error404]
-    heading = "Page couldn't be found - sorry for that I'm new with R"
-    text = "Please visit [this page](/)"
+    heading = "Page couldn't be found - please forgive me, I'm new with R!"
+    text = "It's safe for you to come back [here](/)"
 
   # Navigation Section
   [params.navigation]

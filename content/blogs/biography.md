@@ -29,7 +29,7 @@ Curious to learn more about the field of finance, I am currently reading towards
 
 ## Work
 
-I had the chance to already have professional experience in finance which includes 
+I had the chance to already have professional experience around the globe:
 
  - Investment Analyst at Caisse des Dépôts (Paris, 2019 - 2020)
  - Business Analyst at Factory Berlin (Berlin, 2019- 2019)
