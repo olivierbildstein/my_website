@@ -9,7 +9,7 @@ categories:
 date: "2017-10-31T21:28:43-05:00"
 description: ""
 draft: false
-image: pic4.jpg
+image: pic04.jpg
 keywords: ""
 slug: homework2/homework2
 title: Homework 2
