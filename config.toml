@@ -91,12 +91,12 @@ disqusShortname = "olivierbildstein"
       subtitle = "Education, work, hobbies and much more"
       image = "pic01.jpg"
       url = "blogs/biography"
-
+      
     [[params.tiles.showcase]]
       title = "Academic research"
       subtitle = "Master's thesis on the valuation of Private Equity (in French)"
-      image = "pic02.jpg"
-      url = "blogs/T3 - Mémoire - Olivier Bildstein.pdf"
+      image = "pic03.jpg"
+      url = "blogs/T3 - Mémoire - Olivier Bildstein.pdf"
 
     [[params.tiles.showcase]]
       title = "Homework 1"
@@ -159,9 +159,6 @@ disqusShortname = "olivierbildstein"
     # - you're done. Happy mailing!
     # formEmail = "example@domain.com"
 
-    # Contact Section
-    # You can add multiple emails, phone numbers, or addresses
-    # by copying the corresponding map with frontmatter code.
     
     [[params.contact.email]]
     title = "Email"
