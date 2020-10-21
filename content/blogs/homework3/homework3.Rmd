@@ -1,8 +1,4 @@
 ---
-title: "Homework 3"
-output: html_document
----
----
 categories:
 - ""
 - ""
@@ -11,10 +7,9 @@ description: ""
 draft: false
 image: pic05.jpg
 keywords: ""
-slug: homework3/homework3
-title: Homework 3
+slug: homework3
+title: Homework 3 
 ---
-
 
 ```{r, setup, echo=FALSE}
 knitr::opts_chunk$set(

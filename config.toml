@@ -49,15 +49,15 @@ disqusShortname = "olivierbildstein"
 
     [[params.navigation.links]]
       name = "Homework 1"
-      url = "blogs/homework1/homework1"
+      url = "blogs/homework1"
 
     [[params.navigation.links]]
       name = "Homework 2"
-      url = "blogs/homework2/homework2"
+      url = "blogs/homework2"
 
     [[params.navigation.links]]
       name = "Homework 3"
-      url = "blogs/homework3/homework3"
+      url = "blogs/homework3"
 
     # Add custom links here by uncommenting code below. To remove links just delete
     # the [[params.navigation.links]] map associated with that link. Copy and paste
@@ -95,7 +95,7 @@ disqusShortname = "olivierbildstein"
     [[params.tiles.showcase]]
       title = "Academic research"
       subtitle = "Master's thesis on the valuation of Private Equity (in French)"
-      image = "pic03.jpg"
+      image = "pic02.jpg"
       url = "blogs/T3 - Mémoire - Olivier Bildstein.pdf"
 
     [[params.tiles.showcase]]
@@ -134,7 +134,7 @@ disqusShortname = "olivierbildstein"
   [params.two]
     enable = true
     title = "Professional aspirations"
-    subtitle = """Now that you know a bit more about me, my preivous work experiences and my skills using the R language, allow me  to share with you my professional aspirations.
+    subtitle = """Now that you know a bit more about me, my preivous work experiences and my skills using the R language, allow me  to share my professional aspirations.
     I am looking for a full-time position starting in June 2021 in the field of alternative investments (Private Equity, Venture Capital, Private Debt, Secondaries, Co-investments, GP-stake, Fund of Funds...you name it). Interested? Contact me below!"""
     buttonText = "Or discover more here"
     url = "blogs"
