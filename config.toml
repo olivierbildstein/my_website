@@ -49,15 +49,15 @@ disqusShortname = "olivierbildstein"
 
     [[params.navigation.links]]
       name = "Homework 1"
-      url = "blogs/homework1"
+      url = "blogs/homework1/homework1"
 
     [[params.navigation.links]]
       name = "Homework 2"
-      url = "blogs/homework2"
+      url = "blogs/homework2/homework2"
 
     [[params.navigation.links]]
       name = "Homework 3"
-      url = "blogs/homework3"
+      url = "blogs/homework3/homework3"
 
     # Add custom links here by uncommenting code below. To remove links just delete
     # the [[params.navigation.links]] map associated with that link. Copy and paste
@@ -102,19 +102,19 @@ disqusShortname = "olivierbildstein"
       title = "Homework 1"
       subtitle = "Drinking habits, IMBD, Financial stocks returns, IBM HR"
       image = "pic03.jpg"
-      url = "blogs/homework1"
+      url = "blogs/homework1/homework1"
 
     [[params.tiles.showcase]]
       title = "Homework 2"
       subtitle = "Climate change, GSS, Trump, Gapminder, Covid-19, Bike sharing"
       image = "pic04.jpg"
-      url = "blogs/homework2"
+      url = "blogs/homework2/homework2"
 
     [[params.tiles.showcase]]
       title = "Homework 3"
       subtitle = "Youth risk behavior, IMBD, Omega Group, Yield curve, GDP"
       image = "pic05.jpg"
-      url = "blogs/homework3"
+      url = "blogs/homework3/homework3"
 
     [[params.tiles.showcase]]
       title = "One more thing"
