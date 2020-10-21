@@ -102,19 +102,19 @@ disqusShortname = "olivierbildstein"
       title = "Homework 1"
       subtitle = "Drinking habits, IMBD, Financial stocks returns, IBM HR"
       image = "pic03.jpg"
-      url = "blogs/homework1/homework1"
+      url = "blogs/homework1"
 
     [[params.tiles.showcase]]
       title = "Homework 2"
       subtitle = "Climate change, GSS, Trump, Gapminder, Covid-19, Bike sharing"
       image = "pic04.jpg"
-      url = "blogs/homework2/homework2"
+      url = "blogs/homework2"
 
     [[params.tiles.showcase]]
       title = "Homework 3"
       subtitle = "Youth risk behavior, IMBD, Omega Group, Yield curve, GDP"
       image = "pic05.jpg"
-      url = "blogs/homework3/homework3"
+      url = "blogs/homework3"
 
     [[params.tiles.showcase]]
       title = "One more thing"
@@ -175,7 +175,7 @@ disqusShortname = "olivierbildstein"
   # Footer section
   [params.footer]
     enable = true
-    copyright = "Inspired by Kostis Christodoulou, made by Olivier Bildstein, sweat and tears"
+    copyright = "Inspired by Kostis Christodoulou, made by Olivier Bildstein, sweat and tears."
 
     # Uses font awesome icons
     [[params.footer.social]]
