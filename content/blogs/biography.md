@@ -5,13 +5,12 @@ categories:
 date: "2017-10-31T21:28:43-05:00"
 description: ""
 draft: false
-image: monaco
+image: Monaco.jpg
 keywords: ""
 slug: biography
 title: Biography 
 ---
 
-![Image](https://i.ibb.co/hspvDYC/Capture-d-e-cran-2020-10-21-a-00-17-23.png)
 
 ## Introduction
 
